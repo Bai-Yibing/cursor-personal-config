@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/scripts/pull-cursor-config.sh"
+      }
+    ]
+  }
+}

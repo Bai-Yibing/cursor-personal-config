@@ -1,0 +1,12 @@
+---
+description: 全局沟通与回复风格
+alwaysApply: true
+---
+
+# 沟通规范
+
+- 用简体中文回复；先理解再改代码。
+- 回答比例于任务复杂度；少滥用加粗/反引号。
+- 代码引用用 `startLine:endLine:filepath` 格式；commit/PR 用完整句子。
+- 用 markdown 链接引用 URL 和路径；不编造 API/实验结论，不确定时查官方文档并附链接。
+- 结尾不强行推销 follow-up；有明确后续再直接问。

@@ -1,0 +1,29 @@
+---
+description: 日报、周报、知识库流水线（远程工作、本机存档）
+alwaysApply: false
+---
+
+# 工作汇报与知识库
+
+触发词：**日报、周报、经验总结、知识库、今日收尾、本周收尾、周汇总**
+
+## 加载 Skill
+
+| 场景 | Skill |
+|------|-------|
+| 保存路径（本机↔远端） | `work-reporting-pipeline` → save-work-reports.md |
+| 远程执行与取材 | `remote-ssh-dev` |
+| 日报 / 周报 / 知识库 | 对应 skill |
+
+## 硬性要求
+
+1. **终稿在本机**：`D:\Documents\` 为权威存档；远程 SSH 上写完必须 **pull 回本地**。
+2. 远端暂存：`/root/vln/.cursor/工作存档/`（与 `D:\Documents` 同目录结构）。
+3. 写完汇报后执行 `pull-reports-to-local.ps1`，并确认本机文件存在。
+4. 取材：本机 transcripts/terminals + 远端 git/日志；知识库须有理有据、有数据、有逻辑链。
+5. 周报自动汇总本周本机（及已从远端拉回）的全部日报与日知识库。
+
+## 本机路径
+
+- `D:\Documents\工作汇报\日报\` / `周报\`
+- `D:\Documents\知识库\每日经验\` / `每周汇总\` / `索引\`

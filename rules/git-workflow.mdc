@@ -1,0 +1,18 @@
+---
+description: Git 提交与 PR 安全流程。在用户要求 commit、push 或创建 PR 时遵循。
+alwaysApply: false
+---
+
+# Git 工作流
+
+## 提交
+
+- 仅用户明确要求时 commit/push；不改 git config；不 force push。
+- 提交前并行执行：`git status`、`git diff`、`git log -1`。
+- 不提交含密钥的文件（`.env`、`credentials.json` 等）。
+- 用 HEREDOC 写 commit message；hook 失败则修问题后**新建** commit，不 amend 失败提交。
+
+## Pull Request
+
+- GitHub 任务用 `gh`；创建前检查 status、diff、远程跟踪与 `git log`/`git diff base...HEAD`。
+- 推送用 `git push -u origin HEAD`；PR body 含 Summary 与 Test plan。
