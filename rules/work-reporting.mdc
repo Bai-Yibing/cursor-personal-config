@@ -11,19 +11,24 @@ alwaysApply: false
 
 | 场景 | Skill |
 |------|-------|
-| 保存路径（本机↔远端） | `work-reporting-pipeline` → save-work-reports.md |
+| 保存路径（本机↔远端） | `work-reporting-pipeline` |
 | 远程执行与取材 | `remote-ssh-dev` |
-| 日报 / 周报 / 知识库 | 对应 skill |
+| 日报 / 经验长文写法 | `daily-report` → experience-summary-guide.md |
+| 知识库结构化模板 | `daily-knowledge-base` |
 
 ## 硬性要求
 
 1. **终稿在本机**：`D:\Documents\` 为权威存档；远程 SSH 上写完必须 **pull 回本地**。
-2. 远端暂存：`/root/vln/.cursor/工作存档/`（与 `D:\Documents` 同目录结构）。
+2. 远端暂存：`<项目根>/.cursor/工作存档/`（与 `D:\Documents` 同目录结构）。
 3. 写完汇报后执行 `pull-reports-to-local.ps1`，并确认本机文件存在。
-4. 取材：本机 transcripts/terminals + 远端 git/日志；知识库须有理有据、有数据、有逻辑链。
-5. 周报自动汇总本周本机（及已从远端拉回）的全部日报与日知识库。
+4. 取材：本机 transcripts/terminals + 远端 git/日志。
+5. **日报 vs 经验**：日报写给领导（适度、可决策）；经验写给自己（足够详细、完整数据、可靠经验、可信结论）。二者不可混写。
+6. 周报自动汇总本周本机（及已从远端拉回）的全部日报与日知识库。
 
 ## 本机路径
 
-- `D:\Documents\工作汇报\日报\` / `周报\`
-- `D:\Documents\知识库\每日经验\` / `每周汇总\` / `索引\`
+- 日报：`D:\Documents\工作汇报\日报\YYYY-MM-DD-<主题>日报.md`
+- 周报：`D:\Documents\工作汇报\周报\YYYYWW.md`
+- 经验长文：`D:\Documents\知识库\每日经验\YYYY-MM-DD-<主题>经验总结.md`
+- 日索引：`D:\Documents\知识库\每日经验\YYYYMMDD.md`
+- 索引表：`D:\Documents\知识库\索引\每日清单.md`

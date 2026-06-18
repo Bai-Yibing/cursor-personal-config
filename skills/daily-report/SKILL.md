@@ -1,15 +1,26 @@
 ---
 name: daily-report
 description: >-
-  Generate daily work reports (日报) for leadership by summarizing the day's
-  conversations, code changes, terminal operations, and field tests. Use when
-  the user asks for 日报, daily summary, 今日总结, or end-of-day report to manager.
+  Generate daily work reports (日报) for leadership and daily experience
+  summaries (每日经验总结) with data tables and evidence chains. Use when the user
+  asks for 日报, daily summary, 今日总结, 经验总结, 知识库, or end-of-day report.
 disable-model-invocation: true
 ---
 
-# 日报生成
+# 日报与每日经验总结
 
-面向领导的每日汇报。文风：**说清做了什么、为什么、结果如何**；技术细节适度，多用具体数字与前后对比；问题与待办分开写，不粉饰。
+## 两类文档，两种读者（不可混写）
+
+| 产出 | 读者 | 原则 |
+|------|------|------|
+| **日报** | **领导** | 说清做了什么、为什么、结果如何；技术适度；一页为佳 |
+| **每日经验总结** | **自己** | **足够详细**；**完整数据支撑**；**可靠经验**；**可信结论** |
+
+日报写给领导：便于汇报与决策，不堆砌日志与代码路径。
+
+经验写给自己：三个月后仍能凭文档还原当天、复现判断、避免重复踩坑。**宁可多写有出处的细节，不要用「已修复」糊弄未来的自己。** 详细写法见 [experience-summary-guide.md](experience-summary-guide.md)。
+
+生成经验总结时，**默认写长文**（非日报的加长版）；`YYYYMMDD.md` 短索引仅作入口，不可替代长文。
 
 ## 收集材料（必须主动执行）
 
@@ -69,17 +80,15 @@ YYYYMMDD
 
 | 文件 | 本机路径 |
 |------|----------|
-| 日报 | `D:\Documents\工作汇报\日报\YYYYMMDD.md` |
-| 日知识库 | `D:\Documents\知识库\每日经验\YYYYMMDD.md` |
+| 日报 | `D:\Documents\工作汇报\日报\YYYY-MM-DD-<主题>日报.md` |
+| 日知识库索引 | `D:\Documents\知识库\每日经验\YYYYMMDD.md` |
+| 经验总结长文 | `D:\Documents\知识库\每日经验\YYYY-MM-DD-<主题>经验总结.md` |
 
 ### Remote-SSH 工作区（在远端写时）
 
-1. 先写远端：`/root/vln/.cursor/工作存档/工作汇报/日报/YYYYMMDD.md`（目录不存在则创建）
-2. 写完**立即**在本机执行：
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.cursor\scripts\pull-reports-to-local.ps1" -SshHost S100-SSH -RemoteStagingPath /root/vln/.cursor/工作存档
-   ```
-3. 自检：本机 `D:\Documents\工作汇报\日报\YYYYMMDD.md` 已存在且非空
+1. 先写远端：`<项目根>/.cursor/工作存档/工作汇报/日报/YYYY-MM-DD-<主题>日报.md`（目录不存在则创建）
+2. 写完**立即**在本机执行 `pull-reports-to-local.ps1`（参数见 `work-reporting-pipeline`）
+3. 自检：本机 `D:\Documents\工作汇报\日报\YYYY-MM-DD-<主题>日报.md` 已存在且非空
 
 ### 本机工作区
 
@@ -87,16 +96,28 @@ YYYYMMDD
 
 用户指定路径时以用户为准，但**仍须同步一份到** `D:\Documents\`。
 
-写完日报后按 `work-reporting-pipeline` 同步或询问是否生成当日知识库；知识库同样须 pull 到本机。
+写完日报后同步或询问是否生成当日知识库；知识库同样须 pull 到本机。生成经验总结时**同时**写长文 + `YYYYMMDD.md` 短索引（见 experience-summary-guide.md）。
 
 ## 交付前自检
+
+### 日报
 
 - [ ] 日期标题格式 `YYYYMMDD`
 - [ ] 三块齐全：今日总结 / 存在问题 / 明日待办
 - [ ] 明日待办具体可执行（含「对比」「再跑 N 分钟」「确认 X」类动作）
 - [ ] 无编造：材料里没有的实验结论标为待验证
-- [ ] **本机** `D:\Documents\工作汇报\日报\YYYYMMDD.md` 已存在（远端写的须已 pull）
+- [ ] **本机** `D:\Documents\工作汇报\日报\YYYY-MM-DD-<主题>日报.md` 已存在（远端写的须已 pull）
+
+### 每日经验总结（写给自己，标准高于日报）
+
+- [ ] **足够详细**：时间线、怀疑→否定过程、改前改后；篇幅明显长于日报
+- [ ] **完整数据**：多轮总表 + 数字出处；矛盾已解释
+- [ ] **可靠经验**：可复用排查步骤；无效尝试与误判已写
+- [ ] **可信结论**：独立结论节，每条有依据 + 置信度；未验证不写成定论
+- [ ] 短索引 `YYYYMMDD.md` 仅链到长文，不代替长文
+- [ ] **本机** `D:\Documents\知识库\每日经验\` 下长文 + 索引已 pull
 
 ## 参考示例
 
-见 [examples.md](examples.md)
+- 日报行文：[examples.md](examples.md)
+- 经验总结结构与模板：[experience-summary-guide.md](experience-summary-guide.md)

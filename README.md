@@ -66,4 +66,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.cursor\cu
 
 ## 汇报文档（日报/知识库）
 
-与 Cursor 配置分开，终稿仍在 **本机** `D:\Documents\`，不经过此仓库。
+与 Cursor 配置分开，**工作正文不进此仓库**（含实机数据），终稿在本机 `D:\Documents\`。
+
+| 类型 | 命名 | 本机路径 |
+|------|------|----------|
+| 日报 | `YYYY-MM-DD-<主题>日报.md` | `D:\Documents\工作汇报\日报\` |
+| 经验长文 | `YYYY-MM-DD-<主题>经验总结.md` | `D:\Documents\知识库\每日经验\` |
+| 日索引 | `YYYYMMDD.md`（5–15 行入口） | 同上 |
+| 索引表 | `每日清单.md` | `D:\Documents\知识库\索引\` |
+
+Remote-SSH 暂存：`<项目根>/.cursor/工作存档/`（结构同上），写完用本机 `pull-reports-to-local.ps1` 拉回。
+
+写法规范见 skill `daily-report` → `experience-summary-guide.md`（日报 vs 经验总结、长文模板、自检清单）。

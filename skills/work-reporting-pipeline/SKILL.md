@@ -14,16 +14,17 @@ disable-model-invocation: true
 
 ## 每日收尾（用户说「写日报」「今日收尾」）
 
-按序执行，输出 **2 个文件**：
+按序执行，输出 **日报 1 份 + 知识库 2 份（长文 + 短索引）**：
 
 | 步骤 | Skill | 输出 |
 |------|-------|------|
-| 1 | `daily-report` | `D:\Documents\工作汇报\日报\YYYYMMDD.md` |
-| 2 | `daily-knowledge-base` | `D:\Documents\知识库\每日经验\YYYYMMDD.md` |
+| 1 | `daily-report` | `D:\Documents\工作汇报\日报\YYYY-MM-DD-<主题>日报.md` |
+| 2 | `daily-knowledge-base` + `daily-report/experience-summary-guide.md` | 长文 `YYYY-MM-DD-<主题>经验总结.md` + 索引 `YYYYMMDD.md` |
 
 规则：
 - 先搜集材料（本机 transcripts/terminals + **远端各 Host** git/日志），再写；见 `remote-ssh-dev` → remote-materials.md。
-- 知识库必须比日报更细：完整推理链、证据表、全轮次数据；指标含**主机**列。
+- **经验写给自己**：比日报更细——完整推理链、全轮次证据表、独立结论节、误判记录；指标含**主机**列。
+- 短索引 `YYYYMMDD.md` 仅作入口，**不可替代长文**。
 - 更新 `D:\Documents\知识库\索引\每日清单.md`。
 
 用户只说「写日报」时：写完日报后**主动问**是否同步生成当日知识库；用户曾说「每天都要」则直接生成两份。
@@ -54,14 +55,14 @@ D:\Documents\                          ← 终稿必须在这里
 ├── 工作汇报\日报\ / 周报\
 └── 知识库\每日经验\ / 每周汇总\ / 索引\
 
-/root/vln/.cursor/工作存档/            ← Remote-SSH 暂存（结构同上）
+/root/<项目>/.cursor/工作存档/            ← Remote-SSH 暂存（结构同上）
 ```
 
 ## 远程 SSH 保存流程
 
 在 S100-SSH 等工作区生成日报/知识库/周报时：
 
-1. 写入 `/root/vln/.cursor/工作存档/...`（与上表同结构）
+1. 写入 `<项目根>/.cursor/工作存档/...`（与上表同结构）
 2. 执行 `pull-reports-to-local.ps1` 拉回 `D:\Documents\`
 3. 确认本机文件存在后再算完成
 
