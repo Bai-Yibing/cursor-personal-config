@@ -55,11 +55,12 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 | 主题 | Skill |
 |------|-------|
 | ROS2 / 实机 | `ros2-robotics` |
-| 建图 | `visual-slam-mapping` |
-| BPU/PTQ | `horizon-bpu-ptq` |
+| 建图方法论 | `visual-slam-mapping` |
+| 边缘 NPU/PTQ | `horizon-bpu-ptq` |
 | 防撞 | `nav-safety-collision` |
 | USB 相机 | `camera-usb-rgbd` |
 | 设备 IPC | `device-ipc-protocol` |
+| 现场验证方法 | `field-validation-method` |
 
 ## 禁止写入公开配置的内容
 

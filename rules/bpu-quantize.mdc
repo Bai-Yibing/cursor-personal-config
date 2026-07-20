@@ -1,13 +1,13 @@
 ---
-description: Horizon/S600 BPU 量化与上板门禁
+description: 边缘 NPU/BPU PTQ 与上板门禁（方法论）
 globs: "**/*.{hbm,onnx,yaml,yml}*"
 alwaysApply: false
 ---
 
-# BPU / PTQ 上板
+# NPU / PTQ 上板
 
-- 交付门禁：目标子图 CPU segment = 0（无 hybrid）；HBM 落盘 + 成功日志；进度 100% 不算完成。
-- 能量化加载不等于可上线：查 profiler 与端到端 ms；ConvTranspose 落 CPU 可到数秒/帧。
-- FoundationStereo 按 Feat/Init/Update/Context 多段；InternNav 用 System1(HBM)+System2(LLM)；YOLOE 全 BPU。
-- sensfp16 / kl 可能毁门禁或精度；保留带时间戳回退包；板上指标未测不宣称提升。
-- 工作目录仅 `<ptq_workspace>`。详情见 skill `horizon-bpu-ptq`。
+- 交付门禁：目标子图无意外 CPU/hybrid 段；产物落盘 + 成功日志；进度 UI 不算完成。
+- 能加载 ≠ 可上线：profiler + 板端延迟与任务指标；意外 CPU fallback 可致极慢。
+- 整图不支持则拆分；静态图与自回归/LLM runtime 分离部署。
+- 精度配方可破坏头部或门禁；保留带时间戳回退包；板端未测不宣称提升。
+- 工作目录仅 `<ptq_workspace>`。详情见 `horizon-bpu-ptq` / `field-validation-method`。

@@ -1,12 +1,12 @@
 ---
-description: 机器人/覆盖探索防撞与实机安全
+description: 机器人导航防撞与实机安全（方法论）
 globs: "**/*{nav,explore,coverage,costmap,scan,collision}*"
 alwaysApply: false
 ---
 
 # 导航防撞
 
-- 改运动/覆盖/scan 相关逻辑后必须在实机部署主机验证；注意 depth->scan 缝隙与 unknown 当可通行。
-- 撞物排查对齐时间线：monitor、map 快照、reloc 跳变、velocity 失败 -- 勿只看腿程。
-- 探索 step 过大、局部代价图过小、无 static 层时默认高风险。
-- 运动前确认场地安全。详情见 skill `nav-safety-collision`。
+- 改运动/覆盖/扫描逻辑后必须在实机部署主机验证；注意投影缝隙与 unknown 当可通行。
+- 撞物排查对齐时间线：monitor、地图快照、位姿跳变、速度失败 -- 勿只看单一里程计。
+- 分层防护：感知→地图→决策→执行→运维；每次复现只改一层。
+- 短冒烟后长跑；保留 rollback。详情见 `nav-safety-collision` / `field-validation-method`。

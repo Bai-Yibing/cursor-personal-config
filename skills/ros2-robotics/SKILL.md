@@ -61,12 +61,13 @@ ssh <robot_host> 'pgrep -af bridge; curl -s localhost:<port>/health'
 
 | 主题 | Skill |
 |------|-------|
-| RTAB/开环建图 | `visual-slam-mapping` |
-| 语义/玻璃旁路 | `semantic-occupancy-fusion` |
-| S600 HBM/PTQ | `horizon-bpu-ptq` |
-| 撞物/覆盖安全 | `nav-safety-collision` |
-| USB/RGBD | `camera-usb-rgbd` |
+| 建图方法论 | `visual-slam-mapping` |
+| 语义占据融合 | `semantic-occupancy-fusion` |
+| 边缘 NPU/PTQ | `horizon-bpu-ptq` |
+| 防撞与安全 | `nav-safety-collision` |
+| USB/RGBD 诊断 | `camera-usb-rgbd` |
 | 设备 IPC | `device-ipc-protocol` |
+| 现场验证方法 | `field-validation-method` |
 
 ## 汇报取材
 

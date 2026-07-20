@@ -12,20 +12,18 @@ alwaysApply: false
 | 场景 | Skill |
 |------|-------|
 | 保存路径（本机↔远端） | work-reporting-pipeline |
-| 远程执行与取材 | 
-emote-ssh-dev |
+| 远程执行与取材 | remote-ssh-dev |
 | 日报 / 经验长文写法 | daily-report → experience-summary-guide.md |
 | 知识库结构化模板 | daily-knowledge-base |
-| 建图/语义/BPU/防撞/相机/IPC | isual-slam-mapping / semantic-occupancy-fusion / horizon-bpu-ptq / 
-av-safety-collision / camera-usb-rgbd / device-ipc-protocol |
+| 现场实验方法（O→H→V→C、run_meta） | field-validation-method |
+| 建图/语义/NPU/防撞/相机/IPC 方法论 | visual-slam-mapping / semantic-occupancy-fusion / horizon-bpu-ptq / nav-safety-collision / camera-usb-rgbd / device-ipc-protocol |
 
 ## 硬性要求
 
-1. **终稿在本机**：本机文档目录为权威存档（团队可约定，例如 Documents 下的工作汇报/知识库）；远程 SSH 上写完必须 **pull 回本地**。
+1. **终稿在本机**：本机文档目录为权威存档；远程 SSH 上写完必须 **pull 回本地**。
 2. 远端暂存：<project_root>/.cursor/工作存档/（与本机目录结构对齐）。
 3. 写完汇报后执行 pull-reports-to-local.ps1，并确认本机文件存在。
-4. 取材：本机 transcripts/terminals + 远端 git/日志（角色主机，见 
-emote-materials.md）。
+4. 取材：本机 transcripts/terminals + 远端 git/日志（角色主机，见 remote-materials.md）。
 5. **日报 vs 经验**：日报写给领导（适度、可决策）；经验写给自己（足够详细、完整数据、可靠经验、可信结论）。二者不可混写。
 6. 周报自动汇总本周本机（及已从远端拉回）的全部日报与日知识库。
 7. **隐私**：实机 IP、凭据、原始 bag/地图/日志只写本机或远端存档；**不** publish 进公开的 cursor-personal-config（见 privacy-github）。

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "公开的 Cursor rules/skills 同步清单",
+  "description": "\u516c\u5f00\u7684 Cursor rules/skills \u540c\u6b65\u6e05\u5355",
   "rules": [
     "communication.mdc",
     "coding-principles.mdc",
@@ -24,6 +24,7 @@
     "general-software-dev",
     "ros2-robotics",
     "sync-cursor-to-project",
+    "field-validation-method",
     "visual-slam-mapping",
     "semantic-occupancy-fusion",
     "horizon-bpu-ptq",

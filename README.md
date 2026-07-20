@@ -20,19 +20,22 @@ git clone https://github.com/Bai-Yibing/cursor-personal-config.git ~/.cursor-per
 - 不提交 IP、密码、token、串号、RTSP 凭据、真实日志或实机数据。
 - 发布前运行隐私检索，并用角色化主机名替换环境细节。
 
-## 领域 Skills
+## 方法论 Skills（通用工程 SOP）
 
-| Skill | 用途 |
-|-------|------|
-| `visual-slam-mapping` | IR 双目手持建图、开环陷阱、闭环验收 |
-| `semantic-occupancy-fusion` | 语义旁路、玻璃启发式、地图 diff |
-| `horizon-bpu-ptq` | S600 多 HBM、FoundationStereo、InternNav、YOLOE |
-| `nav-safety-collision` | depth-scan 空隙、costmap、防撞分层 |
-| `camera-usb-rgbd` | USB 带宽、UVC/H264、零回调 |
-| `device-ipc-protocol` | WebSocket 设备客户端、mock E2E、multipart |
-| `ros2-robotics` | ROS2 话题、TF、QoS 与安全调试 |
+本仓库的领域 skills 是**可复用的方法论手册**：决策树、门禁、反模式与现场验证流程，而非单一产品配方。具体栈仅作短示例。
+
+| Skill | 方法论聚焦 |
+|-------|------------|
+| `field-validation-method` | O→H→V→C、单变量、验收指标、run_meta |
+| `visual-slam-mapping` | 传感拓扑、前后端分离、闭环验收、失锁政策 |
+| `semantic-occupancy-fusion` | 几何/语义解耦、安全不对称、地图 diff 验收 |
+| `horizon-bpu-ptq` | 边缘 NPU/BPU PTQ、CPU fallback 门禁、拆图与板端指标 |
+| `nav-safety-collision` | 分层防护、时间线复盘、unknown 保守 |
+| `camera-usb-rgbd` | 带宽优先、控制面 vs 协商流、零回调自底向上 |
+| `device-ipc-protocol` | 设备客户端状态机、mock E2E、传输/schema/域分离 |
+| `ros2-robotics` | ROS2 远端工程习惯与检查清单 |
 | `remote-ssh-dev` | 角色化 SSH 开发与材料收集 |
 
 ## 同步清单
 
-`scripts/sync-manifest.json` 决定安装到项目的 rules 和 skills；项目自有配置不会被删除。远程暂存目录为 `<project_root>/.cursor/工作存档/`。
+`scripts/sync-manifest.json` 决定安装到项目的 rules 和 skills；项目自有配置不会被删除。远端暂存目录为 `<project_root>/.cursor/工作存档/`。

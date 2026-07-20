@@ -1,14 +1,13 @@
 ---
-description: 纯视觉/RTAB/2D 建图调参与验收硬约束
-globs: "**/*{slam,rtab,mapping,map,odom,realsense,orb}*"
+description: 视觉 SLAM/占据建图调参与验收硬约束（方法论）
+globs: "**/*{slam,mapping,map,odom,vo,vio,occupancy}*"
 alwaysApply: false
 ---
 
 # 建图 / SLAM
 
-- 手持 2D 优先官方骨架：IR stereo VO + infra/depth 入 rtabmap；默认关深度滤波、emitter off。
-- VO 与 SLAM 参数分家；Grid/Loop 不要灌进 odometry 节点（Ignored 日志即硬信号）。
-- 验收看 lost%、loops、path/span、目视拓扑；known% 高不等于布局对（警惕开环 odom 投影）。
-- 白墙/玻璃走旁路语义或启发式写 `/map_semantic`；禁止 seg 进 VO；禁止语义标 free。
-- 长失锁禁止随意 soft_reset；人停步。详情见 skill `visual-slam-mapping` / `semantic-occupancy-fusion`。
+- 先定传感器拓扑与同步，再调参；前端跟踪与后端建图/闭环参数分离（Ignored 日志即硬信号）。
+- 验收看 lost%、loops、path/span、目视拓扑；覆盖率仅辅助（警惕开环位姿投影）。
+- 无纹理/透明表面走语义旁路；禁止外观 mask 进 VO；禁止语义标 free。
+- 长失锁禁随意 reset；防跳变 ≠ 可继续探索。详情见 `visual-slam-mapping` / `semantic-occupancy-fusion` / `field-validation-method`。
 - 产物路径仅 `<maps_output>/<session>/`。

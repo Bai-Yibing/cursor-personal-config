@@ -1,93 +1,92 @@
 ---
 name: visual-slam-mapping
 description: >-
-  Handheld and robot 2D/3D visual SLAM mapping (RTAB-Map IR stereo, slam_toolbox,
-  ORB-SLAM3, depth-to-grid). Use when tuning RGB-D mapping, diagnosing map
-  smear/double walls/VO_LOST, comparing known%/loops/path-span, or choosing
-  geometry vs semantic bypass for white walls and glass.
+  Visual SLAM and occupancy mapping methodology for handheld and mobile robots.
+  Use when tuning RGB-D or stereo mapping, diagnosing track loss or map smear,
+  comparing loop quality and path span, or choosing geometry vs semantic bypass
+  for textureless surfaces and transparent obstacles.
 ---
 
-# 纯视觉 / RTAB 建图调优
+# 视觉 SLAM 与占据建图方法论
 
-原则优先于再堆分辨率。产物只写入 `<maps_output>/<session>/`。
+产物写入 `<maps_output>/<session>/`。先确定传感器拓扑与同步，再调算法参数。
 
-## 1. 先定管线骨架
+## 1. 问题定义
 
-| 目标 | 优先方案 | 不要做 |
-|------|----------|--------|
-| 手持 2D 占据图 | `stereo_odometry`(IR1/2+IMU) + `rtabmap`(infra1+depth) | RGB+aligned_depth 当主路径；开 spatial/temporal 深度滤波 |
-| 机器端 2D | 写图前做 scan match / pose graph 观测约束 | 开环 odom 直接投影当真图；只看 known% |
-| 白墙 / 玻璃 | 几何主图 + 旁路写 `/map_semantic` | 把 seg/mask 喂进 VO 或 RTAB 主通路 |
+本类问题包括：位姿跟踪丢失、地图拖尾/双墙、闭环失败、开环投影造假高覆盖、无纹理或透明表面导致的几何空洞。不属于单一参数细调，而是传感、前后端分工、验收指标选择错误。
 
-默认：`emitter=0`；手持关深度滤波（保住 IR-Depth exact sync）。
+## 2. 不变量 / 第一性原理
 
-骨架要点：
+- **信息论**：纯视觉需要可重复特征与时间同步；无纹理/玻璃缺少几何约束。
+- **前后端分离**：跟踪（前端）供位姿；建图/闭环（后端）消费位姿与观测。参数不可混用。
+- **开环投影不能验证地图**：无位姿约束的投影可提高覆盖率但不改变拓扑错误。
+- **重置不对称**：防止位姿跳变 ≠ 能继续探索；长失锁后随意 reset 易造成米级错位。
 
-1. IR stereo + IMU 做 VO（跟踪与位姿）。
-2. infra + depth 进 rtabmap 做栅格与闭环。
-3. 时间戳、外参、分辨率与标定必须一致后再调参。
+## 3. 架构/选型决策树
 
-## 2. 参数分家（VO vs rtabmap）
+| 约束 | 优先路径 | 避免 |
+|------|----------|------|
+| 手持 2D 占据 | 双目/IR + IMU 做 VO；深度进栅格后端 | 把 RGB 对齐深度当主路径而同步不稳 |
+| 移动平台 2D | 扫描匹配 / 位姿图优化后写图 | 开环里程计直接当真图 |
+| 无纹理/玻璃 | 几何主图 + 语义旁路（见 semantic skill） | 把外观 mask 注入特征匹配 VO |
+| 环境光纹丰富 | 特征 VO + 深度栅格（快速原型） | 期望强后端优化而不做闭环 |
+| 有稳定 2D 激光 | 2D 激光 SLAM + 导航衔接 | 用纯视觉硬替代激光约束 |
+| 多传感器长时程 | RGB-D / 多模态 SLAM 类 | 未分配资源前堆高分辨率 |
 
-- VO 节点只收 odom / 跟踪相关参数。
-- Grid / Loop / RGBD / 建图参数只给 rtabmap。
-- 灌错会出现大量 `Ignored ...` 日志，并污染跟踪 -- 把 Ignored 当硬失败信号。
+算法类别只作权衡，不绑定单一产品。
 
-## 3. 每会话必记指标
+## 4. 标准操作流程 SOP
 
-不要只看 known%。known% 高 != 布局正确。
+1. **传感器拓扑**：确认双目/IR、IMU、深度流、时间戳与外参一致。
+2. **前端参数**：仅改跟踪/里程计相关项；出现 `Ignored ...` 类日志视为硬失败。
+3. **后端参数**：栅格、闭环、深度融合单独调整。
+4. **走动 SOP**：慢起步、保留前向纹理、沿可重复路径回访造环。
+5. **会话结束**：导出 lost%、loops、path/span、同步滞后与环境事件到 `<maps_output>/<session>/`。
+6. **失锁政策**：短失锁可续扫；长失锁停步回纹理区；禁随意 soft_reset 追探索。
 
-| 指标 | 看什么 | 异常时首查 |
-|------|--------|------------|
-| lost% / VO_LOST 时长 | 跟踪是否健康 | 纹理、曝光、同步、运动 |
-| loops | 真闭环数量与质量 | 走环路线、重叠观测 |
-| path/span | 路径空间跨度与尺度 | 尺度漂移、断链 |
-| known% | 覆盖率（辅助） | 投影/深度有效性；**不可单独验收** |
-| no_odom / sync_lag | 传感器与时间同步 | 驱动、USB、时钟 |
+## 5. 度量与门禁
 
-开环投影陷阱：开环 odom 投影可使 known% 到 60%+，布局仍是双瓣团块 -- 根因是位姿无约束，不是深度坏。开环投影只作诊断，不作地图或导航验收证据。
+| 指标 | 意义 | 门禁判断 |
+|------|------|----------|
+| lost% / 跟踪丢失时长 | 前端健康 | 持续升高→先查同步/曝光/运动 |
+| loops | 闭环质量 | 中后段接近 0 → 漂移 smear 风险 |
+| path/span | 尺度与路径跨度 | 与真实走过距离脱节 |
+| known% / 覆盖率 | **辅助** | 不可单独验收；高 known% 不等于拓扑正确 |
+| sync_lag / no_odom | 时间与里程计 | 必须在调参前消除 |
 
-## 4. 「中好后差」排查顺序
+验收看闭环后墙体一致性与可导航性，不看单次覆盖率。
 
-1. 中后段 loops 接近 0 -> 漂移 smear -> 再 VO 硬失锁（通常不是「图不够大」）。
-2. 减负优先于加细：先降 `RangeMax`、提高 `Decimation`，再谈更细栅格。
-3. LoopThr 过松拂弯，过严无真环；配合走动回访 + ProximityBySpace。
-4. 高度带过紧会抹墙（手持不要用过窄 Grid 高程）。
-5. 按时间轴对齐 lost、回调频率、曝光/温度变化与闭环事件，禁止一上来大改一堆参数。
+## 6. 故障分类学
 
-## 5. 失锁与 soft_reset
+| 症状 | 可能原因 | 否证测试 |
+|------|----------|----------|
+| 中好后差 / smear | 闭环丢失、漂移累积 | 对齐时间轴看 loops 与 lost 事件 |
+| 双瓣团块地图 | 开环投影 | 关闭开环投影，比对位姿图约束 |
+| 大量 Ignored 参数 | 前后端参数灌错节点 | 分离 launch 参数集 |
+| 白墙全空 | 纯视觉物理上限 | 改传感/VIO/语义旁路，不再堆同一 VO |
+| 失锁后跳变 | 不当 reset | 复现路径上禁 reset，改人工回纹理区 |
 
-| 场景 | 做法 |
-|------|------|
-| 短失锁 | 可继续建图；按产品需求设 `publish_null_when_lost` |
-| 长失锁后继续走动 | **禁止**随意 `soft_reset` / `reset_odom`（易米级跳变） |
-| 操作侧 | VO_LOST 时停步回纹理区；IMU hold 有时限，撑不住就停扫 |
+## 7. 反模式与理由
 
-注意：防跳变不等于能恢复拓图。关 soft_reset 后地图可能停更 -- 不要边走边 reset。
+| 错误本能 | 为何失败 | 正确做法 |
+|----------|----------|----------|
+| 先加分辨率/细栅格 | 资源与噪声同步恶化 | 先降 Range/Decimation，再谈细化 |
+| 用 known% 宣布达标 | 开环可造假高值 | 看 loops + 目视拓扑 |
+| seg 进 VO | 破坏点对应 | 语义只进占据旁路 |
+| 失锁后边走边 reset | 易米级跳变 | 停步或结束会话重扫 |
 
-## 6. 算法选型权衡
+## 8. 交付/复盘检查清单
 
-| 方案 | 强项 | 限制 |
-|------|------|------|
-| ORB + depth_to_grid | 快速定位与深度栅格 | 地图优化弱；易受纹理/标定影响 |
-| slam_toolbox | 2D 激光建图与导航衔接 | 依赖稳定 laser/odom |
-| RTAB-Map | 多传感器建图与闭环 | 需调好前端与资源；参数分家严格 |
+- [ ] 传感器拓扑与同步已验证
+- [ ] 前后端参数分离，无 Ignored 污染
+- [ ] lost/loops/path-span 已记录，时间轴对齐
+- [ ] 未用开环投影作为唯一验收证据
+- [ ] 无纹理场景已评估语义或传感替代方案
+- [ ] 产物在 `<maps_output>/<session>/`
 
-白墙/满幅玻璃：纯视觉有物理上限 -- 应改传感/VIO/架构或走语义旁路，而不是再调同一 stereo。
+## 9. 相关 skills
 
-## 7. 走动 SOP
-
-1. 慢起步，前视野保留纹理；勿快速转身。
-2. 沿可重复路径回到起点，主动回访做环。
-3. 导出 lost/loops/path-span/known% 与环境事件日志到 `<maps_output>/<session>/`。
-4. 验收看闭环后墙体一致性与可导航性，不看单次 known%。
-
-## 8. 远程快速检查
-
-```bash
-ls -lt <maps_output>/<session>/
-ros2 topic hz /odom_vo
-ros2 topic hz /scan
-```
-
-语义旁路与玻璃占用见 `semantic-occupancy-fusion`。
+- 语义旁路与玻璃：`semantic-occupancy-fusion`
+- 实验方法与 run_meta：`field-validation-method`
+- 相机同步与带宽：`camera-usb-rgbd`
+- 导航安全边界：`nav-safety-collision`
