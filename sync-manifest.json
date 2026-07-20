@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "\u516c\u5f00\u7684 Cursor rules/skills \u540c\u6b65\u6e05\u5355",
+  "description": "公开的 Cursor rules/skills 同步清单",
   "rules": [
     "communication.mdc",
     "coding-principles.mdc",
@@ -12,7 +12,8 @@
     "ros2-cpp-python.mdc",
     "slam-mapping.mdc",
     "bpu-quantize.mdc",
-    "nav-safety.mdc"
+    "nav-safety.mdc",
+    "cursor-config-authoring.mdc"
   ],
   "skills": [
     "daily-report",
@@ -24,6 +25,7 @@
     "general-software-dev",
     "ros2-robotics",
     "sync-cursor-to-project",
+    "author-cursor-config",
     "field-validation-method",
     "visual-slam-mapping",
     "semantic-occupancy-fusion",

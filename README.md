@@ -34,6 +34,7 @@ git clone https://github.com/Bai-Yibing/cursor-personal-config.git ~/.cursor-per
 | `camera-usb-rgbd` | 带宽优先、控制面 vs 协商流、零回调自底向上 |
 | `device-ipc-protocol` | 设备客户端状态机、mock E2E、传输/schema/域分离 |
 | `ros2-robotics` | ROS2 远端工程习惯与检查清单 |
+| `author-cursor-config` | 如何撰写/迭代 skills 与 rules（抽象、隐私、骨架、发布） |
 | `remote-ssh-dev` | 角色化 SSH 开发与材料收集 |
 
 ## 同步清单
