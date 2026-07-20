@@ -15,6 +15,7 @@ alwaysApply: false
 | 远程执行与取材 | `remote-ssh-dev` |
 | 日报 / 经验长文写法 | `daily-report` → experience-summary-guide.md |
 | 知识库结构化模板 | `daily-knowledge-base` |
+| 建图/语义/BPU/防撞结论写入经验 | `visual-slam-mapping` / `semantic-occupancy-fusion` / `horizon-bpu-ptq` / `nav-safety-collision` |
 
 ## 硬性要求
 

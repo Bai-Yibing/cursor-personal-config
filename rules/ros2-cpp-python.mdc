@@ -9,4 +9,5 @@ alwaysApply: false
 - 构建、launch、实机测试在**远端 Linux** 执行；改 launch/参数后须在远端 `source` 并重启。
 - 区分各主机 ROS 发行版（Humble/Foxy）与 DDS 配置；跨机优先 HTTP，避免隐式 ROS 域。
 - TF、frame_id、话题名改动同步远端 launch 与文档；路径用 Linux 形式（`/root/...`）。
+- 建图/语义/防撞改动遵循 `slam-mapping` / `nav-safety`；BPU 产物遵循 `bpu-quantize`。
 - 查问题：`ssh <Host> 'ros2 node list'`、远端日志、tmux 会话 — 不单靠本机猜测。

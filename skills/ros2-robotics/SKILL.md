@@ -25,8 +25,10 @@ ssh S100 'source ~/ros_ws/install/setup.bash && ros2 launch ...'
 
 | 侧 | 典型主机 | 注意 |
 |----|----------|------|
-| 感知/导航 | S100 | Humble、RealSense、Nav2 |
+| 感知/导航/建图 | S100 | Humble、RealSense、Nav2、RTAB |
 | 执行层 | Go2-SSH | Foxy、HTTP 桥、DDS 绑 eth0 |
+| BPU 量化开发 | 内网 GPU 机（如 192.168.2.128） | 容器隔离；产物常在 `/mnt/data/horizon_ptq/` |
+| 人脸/IPC 等 | 板端专用仓库（如 `/root/fr`） | 与 `/root/vln` 分开标注 |
 | 开发机 | 本机 / 云服务器 | 文档、汇报存档 |
 
 跨机无 ROS 域时只用 HTTP/明确接口；DDS 问题在**各端分别**查 `CYCLONEDDS_URI`、`RMW_IMPLEMENTATION`。
@@ -36,12 +38,15 @@ ssh S100 'source ~/ros_ws/install/setup.bash && ros2 launch ...'
 - [ ] TF 链、`frame_id`、话题 QoS
 - [ ] `use_sim_time` 一致
 - [ ] 进程在预期主机：`ssh S100 'ros2 node list'`
+- [ ] 建图会话：lost%/loops/path-span，不只 known%（见 `visual-slam-mapping`）
+- [ ] 探索/覆盖：scan 缝隙与 unknown 通行策略（见 `nav-safety-collision`）
 
 ## 实机 / 探索
 
 - 日志：`/tmp/`、`~/logs/`、`ros2 bag`；汇报标注主机与路径。
 - 长探索用远端 `tmux`；断连后 `tmux attach` 续查输出。
-- 会话产物（map.pgm 等）路径写**远端绝对路径**。
+- 会话产物（map.pgm、`run_meta`、mapping_review）路径写**远端绝对路径**。
+- 运动控制前确认场地安全；撞物复盘对齐 reloc 跳变与 monitor 时间线。
 
 ## 排错（SSH 到出问题的那台）
 
@@ -50,6 +55,15 @@ ssh S100 'ros2 topic list; ros2 topic hz /scan'
 ssh S100 'ros2 run tf2_tools view_frames'  # 或导出 tf 树
 ssh Go2-SSH 'pgrep -af bridge; curl -s localhost:8765/health'
 ```
+
+## 相关 Skills
+
+| 主题 | Skill |
+|------|-------|
+| RTAB/开环建图 | `visual-slam-mapping` |
+| 语义/玻璃旁路 | `semantic-occupancy-fusion` |
+| S600 HBM/PTQ | `horizon-bpu-ptq` |
+| 撞物/覆盖安全 | `nav-safety-collision` |
 
 ## 汇报取材
 

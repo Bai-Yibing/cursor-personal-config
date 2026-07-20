@@ -64,6 +64,21 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.cursor\cu
 
 列出的文件才会覆盖；增删个人 rules/skills 时同步改 manifest 并 publish。
 
+## 领域 Skills / Rules（自工作存档提炼）
+
+| Skill | 用途 |
+|-------|------|
+| `visual-slam-mapping` | RTAB IR 手持、开环投影陷阱、lost/loops 验收 |
+| `semantic-occupancy-fusion` | YOLOE 旁路、玻璃启发式、禁止语义 free / seg→VO |
+| `horizon-bpu-ptq` | S600 多段 HBM、InternNav System1+LLM、CPU=0 门禁 |
+| `nav-safety-collision` | coverage 撞物、depth→scan 缝隙、reloc 跳变复盘 |
+
+| Rule | 用途 |
+|------|------|
+| `slam-mapping.mdc` | 建图硬约束（按文件名 glob 触发） |
+| `bpu-quantize.mdc` | BPU 上板门禁 |
+| `nav-safety.mdc` | 探索/防撞实机安全 |
+
 ## 汇报文档（日报/知识库）
 
 与 Cursor 配置分开，**工作正文不进此仓库**（含实机数据），终稿在本机 `D:\Documents\`。
