@@ -15,7 +15,7 @@ disable-model-invocation: true
 ## 流程
 
 ```text
-编辑 C:\Users\19944\.cursor\rules|skills
+编辑 $env:USERPROFILE\.cursor\rules|skills
   → publish-cursor-config.ps1 → git push (GitHub)
   → 每台 Linux: git clone 一次到 ~/.cursor-personal-config
   → 每个项目: install-to-project.sh <项目路径>
@@ -32,7 +32,7 @@ git clone https://github.com/你的用户名/cursor-personal-config.git ~/.curso
 
 ```bash
 ~/.cursor-personal-config/scripts/install-to-project.sh "$(pwd)"
-# 或指定路径：.../install-to-project.sh /root/vln
+# 或指定路径：.../install-to-project.sh <project_root>
 ```
 
 ## 本机 Windows 项目
@@ -54,7 +54,7 @@ git push
 - **只覆盖** `sync-manifest.json` 列出的同名文件
 - **不删除** 项目自有：`project-overview`、`ros2-cpp`、`vln-*` 等
 - **禁止** `rules/global/` 子目录
-- Remote-SSH Agent **读不到** `C:\Users\19944\.cursor\`，勿从 user rules 臆造
+- Remote-SSH Agent **读不到** `$env:USERPROFILE\.cursor\`，勿从 user rules 臆造
 
 ## 远端 Agent
 
@@ -62,6 +62,6 @@ git push
 
 ## 仓库路径
 
-- 本机克隆：`C:\Users\19944\.cursor\cursor-personal-config`
+- 本机克隆：`$env:USERPROFILE\.cursor\cursor-personal-config`
 - Linux：`~/.cursor-personal-config`
 - 说明：`cursor-personal-config/README.md`

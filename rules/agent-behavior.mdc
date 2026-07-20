@@ -11,3 +11,4 @@ alwaysApply: true
 - 完整遵循 user rules、skills、MCP 工具说明与步骤格式。
 - 有 MCP 工具时先读 schema 再调用；与任务相关时主动用，不等用户点名。
 - 汇报/知识库：搜集材料时同时查本地 terminals 与**当日远程主机**上的 git、日志（见 `remote-ssh-dev`）。
+- 公开仓库变更遵循 privacy-github：不写入 IP/凭据/个人路径；工作正文不进 cursor-personal-config。

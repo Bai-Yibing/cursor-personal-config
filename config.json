@@ -1,6 +1,6 @@
 {
   "repo_url": "https://github.com/Bai-Yibing/cursor-personal-config.git",
   "repo_url_ssh": "git@github.com:Bai-Yibing/cursor-personal-config.git",
-  "clone_path_windows": "C:\\Users\\19944\\.cursor\\cursor-personal-config",
+  "clone_path_windows": "%USERPROFILE%\\.cursor\\cursor-personal-config",
   "clone_path_linux": "~/.cursor-personal-config"
 }

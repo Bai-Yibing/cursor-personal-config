@@ -76,12 +76,12 @@ YYYYWW（YYYY-MM-DD ~ YYYY-MM-DD）
 
 ## 保存（本机为准）
 
-见 `save-work-reports.md`（`C:\Users\19944\.cursor\scripts\`）。
+见 `save-work-reports.md`（`$env:USERPROFILE\.cursor\scripts\`）。
 
 | 文件 | 本机终稿 | 远端暂存 |
 |------|----------|----------|
-| 周报 | `D:\Documents\工作汇报\周报\YYYYWW.md` | `/root/vln/.cursor/工作存档/工作汇报/周报/YYYYWW.md` |
-| 周知识库 | `D:\Documents\知识库\每周汇总\YYYYWW.md` | `/root/vln/.cursor/工作存档/知识库/每周汇总/YYYYWW.md` |
+| 周报 | `D:\Documents\工作汇报\周报\YYYYWW.md` | `<project_root>/.cursor/工作存档/工作汇报/周报/YYYYWW.md` |
+| 周知识库 | `D:\Documents\知识库\每周汇总\YYYYWW.md` | `<project_root>/.cursor/工作存档/知识库/每周汇总/YYYYWW.md` |
 
 汇总时**优先读本机** `D:\Documents\`；若缺文件先 `pull-reports-to-local.ps1` 从远端拉回再汇总。
 

@@ -135,7 +135,7 @@ ssh S100 'cd /path/to/repo && bash scripts/run.sh'
 
 ## 保存（本机为准）
 
-见 `C:\Users\19944\.cursor\scripts\save-work-reports.md`。
+见 `$env:USERPROFILE\.cursor\scripts\save-work-reports.md`。
 
 | 文件 | 本机终稿 | 远端暂存（SSH 工作区时先写这里） |
 |------|----------|----------------------------------|

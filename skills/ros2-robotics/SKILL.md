@@ -1,59 +1,60 @@
 ---
 name: ros2-robotics
 description: >-
-  ROS2 robotics on remote Linux boards via SSH (S100, Go2, edge devices).
+  ROS2 robotics on remote Linux boards via SSH (perception and robot hosts).
   Use when working with ROS2 nodes, launch files, TF, Nav2, SLAM, colcon
   workspaces, or field tests on remote machines.
 ---
 
 # ROS2 机器人开发（远程）
 
-ROS 栈运行在**远端 Linux**（如 S100 Humble、Go2 Foxy）；本机通过 SSH 或 Remote-SSH 操作。
+ROS 栈运行在**远端 Linux**；本机通过 SSH 或 Remote-SSH 操作。
+路径用 `<project_root>`；主机用 `<perception_host>` / `<robot_host>` / `<ptq_host>`。
 
 ## 工作空间（远端执行）
 
 ```bash
-# Remote-SSH 终端或：
-ssh S100 'source /opt/ros/humble/setup.bash && cd ~/ros_ws && colcon build --symlink-install'
-ssh S100 'source ~/ros_ws/install/setup.bash && ros2 launch ...'
+ssh <perception_host> 'source /opt/ros/humble/setup.bash && cd <project_root> && colcon build --symlink-install'
+ssh <perception_host> 'source <project_root>/install/setup.bash && ros2 launch ...'
 ```
 
 - 区分 overlay/underlay；`AMENT_PREFIX_PATH` 在**运行节点的那台机器**上检查。
-- launch/yaml 中的 IP、路径、网卡名为远端环境，勿套 Windows 路径。
+- launch/yaml 中的地址、路径、网卡名为远端环境，勿套 Windows 路径；公开文档用占位符。
 
-## 跨机架构
+## 跨机架构（角色）
 
-| 侧 | 典型主机 | 注意 |
-|----|----------|------|
-| 感知/导航/建图 | S100 | Humble、RealSense、Nav2、RTAB |
-| 执行层 | Go2-SSH | Foxy、HTTP 桥、DDS 绑 eth0 |
-| BPU 量化开发 | 内网 GPU 机（如 192.168.2.128） | 容器隔离；产物常在 `/mnt/data/horizon_ptq/` |
-| 人脸/IPC 等 | 板端专用仓库（如 `/root/fr`） | 与 `/root/vln` 分开标注 |
-| 开发机 | 本机 / 云服务器 | 文档、汇报存档 |
+| 侧 | 角色占位符 | 注意 |
+|----|------------|------|
+| 感知/导航/建图 | `<perception_host>` | Humble、RGB-D、Nav2、RTAB |
+| 执行层 | `<robot_host>` | HTTP 桥、DDS 绑指定网卡 |
+| BPU 量化 | `<ptq_host>` | 容器隔离；产物在 `<ptq_workspace>` |
+| 设备 IPC 等 | 板端专用 `<project_root>` | 与导航仓分开标注 |
+| 开发机 | 本机 / 云主机 | 文档、汇报存档 |
 
 跨机无 ROS 域时只用 HTTP/明确接口；DDS 问题在**各端分别**查 `CYCLONEDDS_URI`、`RMW_IMPLEMENTATION`。
 
-## 常见检查清单（均在对应远端执行）
+## 常见检查清单
 
 - [ ] TF 链、`frame_id`、话题 QoS
 - [ ] `use_sim_time` 一致
-- [ ] 进程在预期主机：`ssh S100 'ros2 node list'`
-- [ ] 建图会话：lost%/loops/path-span，不只 known%（见 `visual-slam-mapping`）
+- [ ] 进程在预期主机：`ssh <Host> 'ros2 node list'`
+- [ ] 建图：lost%/loops/path-span，不只 known%（见 `visual-slam-mapping`）
 - [ ] 探索/覆盖：scan 缝隙与 unknown 通行策略（见 `nav-safety-collision`）
+- [ ] USB 相机带宽与回调（见 `camera-usb-rgbd`）
 
 ## 实机 / 探索
 
-- 日志：`/tmp/`、`~/logs/`、`ros2 bag`；汇报标注主机与路径。
+- 日志：`/tmp/`、`~/logs/`、`ros2 bag`；汇报标注主机角色与路径占位符。
 - 长探索用远端 `tmux`；断连后 `tmux attach` 续查输出。
-- 会话产物（map.pgm、`run_meta`、mapping_review）路径写**远端绝对路径**。
+- 会话产物写入约定目录（如 `<maps_output>/<session>/`）。
 - 运动控制前确认场地安全；撞物复盘对齐 reloc 跳变与 monitor 时间线。
 
-## 排错（SSH 到出问题的那台）
+## 排错
 
 ```bash
-ssh S100 'ros2 topic list; ros2 topic hz /scan'
-ssh S100 'ros2 run tf2_tools view_frames'  # 或导出 tf 树
-ssh Go2-SSH 'pgrep -af bridge; curl -s localhost:8765/health'
+ssh <perception_host> 'ros2 topic list; ros2 topic hz /scan'
+ssh <perception_host> 'ros2 run tf2_tools view_frames'
+ssh <robot_host> 'pgrep -af bridge; curl -s localhost:<port>/health'
 ```
 
 ## 相关 Skills
@@ -64,7 +65,9 @@ ssh Go2-SSH 'pgrep -af bridge; curl -s localhost:8765/health'
 | 语义/玻璃旁路 | `semantic-occupancy-fusion` |
 | S600 HBM/PTQ | `horizon-bpu-ptq` |
 | 撞物/覆盖安全 | `nav-safety-collision` |
+| USB/RGBD | `camera-usb-rgbd` |
+| 设备 IPC | `device-ipc-protocol` |
 
 ## 汇报取材
 
-见 `remote-ssh-dev` → remote-materials.md；指标表含**主机**列。
+见 `remote-ssh-dev` -> remote-materials.md；指标表含**主机角色**列。

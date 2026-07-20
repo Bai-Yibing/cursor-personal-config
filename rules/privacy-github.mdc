@@ -1,0 +1,20 @@
+---
+description: 公开仓库隐私与脱敏硬约束
+alwaysApply: true
+---
+
+# 公开仓库隐私与脱敏
+
+## 硬约束
+
+1. 不写公网/内网 IP、密码、token、串号、RTSP 凭据或真实端点。
+2. SSH 仅使用角色名：`<perception_host>`、`<robot_host>`、`<ptq_host>`、`<Host>`。
+3. 本机路径使用 `$env:USERPROFILE` 或 `~`；项目路径使用 `<project_root>`。
+4. 运行数据、地图、日志和截图不提交公共仓库。
+5. 建图产物写 `<maps_output>/<session>/`；量化工作区写 `<ptq_workspace>`。
+
+## 发布前自检
+
+- 搜索 IPv4、用户名硬编码、私有绝对路径与凭据字段。
+- 用占位符替代环境特定值，并说明所需的角色和权限。
+- 只保留可复用的诊断方法、门禁和验收标准。

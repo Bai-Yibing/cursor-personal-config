@@ -8,6 +8,6 @@ alwaysApply: false
 
 - 交付门禁：目标子图 CPU segment = 0（无 hybrid）；HBM 落盘 + 成功日志；进度 100% 不算完成。
 - 能量化加载不等于可上线：查 profiler 与端到端 ms；ConvTranspose 落 CPU 可到数秒/帧。
-- 大模型拆段或 System1(HBM)+System2(LLM)；勿赌单 HBM 塞满 DualVLN。
-- 校准/kl/敏感 fp16 可能毁门禁或精度；保留带时间戳回退包；板上指标未测不宣称提升。
-- 细节见 skill `horizon-bpu-ptq`。
+- FoundationStereo 按 Feat/Init/Update/Context 多段；InternNav 用 System1(HBM)+System2(LLM)；YOLOE 全 BPU。
+- sensfp16 / kl 可能毁门禁或精度；保留带时间戳回退包；板上指标未测不宣称提升。
+- 工作目录仅 `<ptq_workspace>`。详情见 skill `horizon-bpu-ptq`。

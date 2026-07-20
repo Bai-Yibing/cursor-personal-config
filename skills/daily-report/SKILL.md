@@ -26,8 +26,8 @@ disable-model-invocation: true
 
 按顺序搜集当日信息；**本地 + 远程 SSH** 双端，缺什么就查什么：
 
-1. **对话历史**（本机）：`C:\Users\19944\.cursor\projects\*\agent-transcripts\*.jsonl`
-2. **终端记录**（本机，含 `ssh` 会话输出）：`C:\Users\19944\.cursor\projects\*\terminals\*.txt`
+1. **对话历史**（本机）：`$env:USERPROFILE\.cursor\projects\*\agent-transcripts\*.jsonl`
+2. **终端记录**（本机，含 `ssh` 会话输出）：`$env:USERPROFILE\.cursor\projects\*\terminals\*.txt`
 3. **代码变更**（在**实际改动的仓库所在机器**上）：
    - Remote-SSH 工作区：直接 `git log` / `git diff`
    - 否则：`ssh <Host> 'cd <repo> && git log --since="今天0点" --oneline && git diff'`

@@ -1,14 +1,15 @@
 {
   "version": 1,
-  "description": "全局 rules/skills 同步清单；仅列出的文件会覆盖写入项目 .cursor/",
+  "description": "公开的 Cursor rules/skills 同步清单",
   "rules": [
     "communication.mdc",
     "coding-principles.mdc",
     "agent-behavior.mdc",
     "git-workflow.mdc",
+    "work-reporting.mdc",
+    "privacy-github.mdc",
     "remote-ssh-workflow.mdc",
     "ros2-cpp-python.mdc",
-    "work-reporting.mdc",
     "slam-mapping.mdc",
     "bpu-quantize.mdc",
     "nav-safety.mdc"
@@ -26,6 +27,8 @@
     "visual-slam-mapping",
     "semantic-occupancy-fusion",
     "horizon-bpu-ptq",
-    "nav-safety-collision"
+    "nav-safety-collision",
+    "camera-usb-rgbd",
+    "device-ipc-protocol"
   ]
 }

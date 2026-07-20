@@ -11,33 +11,34 @@ alwaysApply: true
 
 | 情况 | 命令在哪跑 |
 |------|------------|
-| Cursor 已 Remote-SSH 连到远端，工作区在 Linux | **直接在集成终端执行**（已是远端 shell） |
-| 工作区在本机 Windows，操作目标在服务器 | `ssh <Host别名> '命令'` 或 `ssh <Host别名>` 进交互 |
-| 不确定 | 先看终端 `cwd`、对话上下文、用户提到的主机名 |
+| Cursor 已 Remote-SSH 连到远端，工作区在 Linux | **直接在集成终端执行** |
+| 工作区在本机 Windows，操作目标在服务器 | `ssh <Host> '命令'` 或 `ssh <Host>` 进交互 |
+| 不确定 | 先看终端 `cwd`、对话上下文、用户提到的主机角色 |
 
-## 常用 SSH 主机（settings 已配置）
+## 角色主机（禁止写真实 IP）
 
-`S100`、`S100-SSH`、`Go2-SSH`、`192.168.1.56`、`47.116.133.221`；另常见内网 GPU 量化机、XC100 板端（均为 linux）。
+| 角色 | 占位符 | 用途 |
+|------|--------|------|
+| 感知主机 | `<perception_host>` | 相机、建图、语义节点 |
+| 机器人主机 | `<robot_host>` | ROS2、导航、实机测试 |
+| 量化主机 | `<ptq_host>` | 编译、量化、HBM 打包 |
+| 通用 | `<Host>` | 未归类的 SSH 目标 |
 
-汇报与知识库中写清：**哪台机器、什么路径、什么时间**（BPU 另加容器/GPU）。
+汇报与知识库写清：**主机角色、路径占位符、时间**（BPU 另加容器/GPU）。
 
 ## 开发与验证
 
-- 改代码前确认改的是**本地副本还是远端工作区**；避免只改一端未同步。
-- 构建/测试/查日志在**实际运行环境**（远端）执行，不单靠本机推断。
+- 改代码前确认当前副本与 `<project_root>`；避免只改一端未同步。
+- 构建/测试/查日志在**实际运行环境**（远端）执行。
 - 长任务用远端 `tmux`/`screen`；断连后 `tmux attach` 续查。
-- 路径：远端用 Linux 路径（`/root/...`）；汇报存档用 `D:\Documents\`（本机）。
+- 路径：远端用 `<project_root>/...`；本机配置用 `$env:USERPROFILE\.cursor\...`。
 
 ## 打开任意 SSH 工作区
 
-个人 Cursor 配置走 **Git**，不绑定某台主机或 `/root/vln`：
-
 1. 每台 Linux 一次：`git clone <repo> ~/.cursor-personal-config`
-2. 每个项目一次：`~/.cursor-personal-config/scripts/install-to-project.sh <项目根>`
-3. 本机改配置：`publish-cursor-config.ps1` → `git push`
+2. 每个项目一次：`~/.cursor-personal-config/scripts/install-to-project.sh <project_root>`
+3. 本机改配置：`publish-cursor-config.ps1` -> `git push`
 
-详见 `cursor-personal-config/README.md` 与 skill `sync-cursor-to-project`。
+## 材料收集
 
-## 材料搜集（写日报/知识库时）
-
-除本地 transcripts、terminals 外，必须纳入**当日涉及的远程主机**上的 git、日志、测试输出。详见 skill `remote-ssh-dev` 中的 `remote-materials.md`。
+除本地 transcripts、terminals 外，必须纳入**当日涉及的远程主机**上的 git、日志、测试输出。见 `remote-ssh-dev` -> `remote-materials.md`。

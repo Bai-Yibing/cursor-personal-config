@@ -1,5 +1,5 @@
 ---
-description: 机器狗/覆盖探索防撞与实机安全
+description: 机器人/覆盖探索防撞与实机安全
 globs: "**/*{nav,explore,coverage,costmap,scan,collision}*"
 alwaysApply: false
 ---
@@ -7,6 +7,6 @@ alwaysApply: false
 # 导航防撞
 
 - 改运动/覆盖/scan 相关逻辑后必须在实机部署主机验证；注意 depth->scan 缝隙与 unknown 当可通行。
-- 撞物排查对齐时间线：monitor、map 快照、reloc 跳变、velocity 失败——勿只看腿程。
+- 撞物排查对齐时间线：monitor、map 快照、reloc 跳变、velocity 失败 -- 勿只看腿程。
 - 探索 step 过大、局部代价图过小、无 static 层时默认高风险。
-- 运动前确认场地安全。细节见 skill `nav-safety-collision`。
+- 运动前确认场地安全。详情见 skill `nav-safety-collision`。

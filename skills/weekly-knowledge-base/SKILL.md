@@ -99,7 +99,7 @@ disable-model-invocation: true
 
 | 本机终稿 | 远端暂存 |
 |----------|----------|
-| `D:\Documents\知识库\每周汇总\YYYYWW.md` | `/root/vln/.cursor/工作存档/知识库/每周汇总/YYYYWW.md` |
+| `D:\Documents\知识库\每周汇总\YYYYWW.md` | `<project_root>/.cursor/工作存档/知识库/每周汇总/YYYYWW.md` |
 
 写完执行 `pull-reports-to-local.ps1`；详见 `save-work-reports.md`。
 

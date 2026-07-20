@@ -7,7 +7,8 @@ alwaysApply: false
 # 建图 / SLAM
 
 - 手持 2D 优先官方骨架：IR stereo VO + infra/depth 入 rtabmap；默认关深度滤波、emitter off。
-- VO 与 SLAM 参数分家；Grid/Loop 不要灌进 odometry 节点。
+- VO 与 SLAM 参数分家；Grid/Loop 不要灌进 odometry 节点（Ignored 日志即硬信号）。
 - 验收看 lost%、loops、path/span、目视拓扑；known% 高不等于布局对（警惕开环 odom 投影）。
 - 白墙/玻璃走旁路语义或启发式写 `/map_semantic`；禁止 seg 进 VO；禁止语义标 free。
-- 长失锁禁止随意 soft_reset；人停步。细节见 skill `visual-slam-mapping` / `semantic-occupancy-fusion`。
+- 长失锁禁止随意 soft_reset；人停步。详情见 skill `visual-slam-mapping` / `semantic-occupancy-fusion`。
+- 产物路径仅 `<maps_output>/<session>/`。
