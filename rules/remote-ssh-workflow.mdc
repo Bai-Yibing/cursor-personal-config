@@ -1,62 +1,36 @@
 ---
-description: 默认在远程 Linux 服务器上通过 SSH 开发与验证
+description: 默认在远程 Linux 上通过 SSH 开发与验证
 alwaysApply: true
 ---
 
 # 远程 SSH 工作环境
 
-用户**主要工作场景**：本机 Windows 运行 Cursor，代码构建、运行、实机测试在**远程 Linux** 上完成。
+本机 Windows 运行 Cursor；**构建/运行/实机验证在远端 Linux**。详见 `remote-ssh-dev`。
 
-## 执行位置判定
+## 执行位置
 
 | 情况 | 命令在哪跑 |
 |------|------------|
-| Cursor 已 Remote-SSH 连到远端，工作区在 Linux | **直接在集成终端执行** |
-| 工作区在本机 Windows，操作目标在服务器 | `ssh <Host> '命令'` 或 `ssh <Host>` 进交互 |
-| 不确定 | 先看终端 `cwd`、对话上下文、用户提到的主机角色 |
+| Remote-SSH，工作区在 Linux | 直接在集成终端执行 |
+| 工作区在 Windows | `ssh <Host> '命令'` |
+| 不确定 | 看 `cwd`、对话上下文、主机角色 |
 
 ## 角色主机（禁止写真实 IP）
 
-| 角色 | 占位符 | 用途 |
-|------|--------|------|
-| 感知主机 | `<perception_host>` | 相机、建图、语义节点 |
-| 机器人主机 | `<robot_host>` | ROS2、导航、实机测试 |
-| 量化主机 | `<ptq_host>` | 编译、量化、HBM 打包 |
-| 通用 | `<Host>` | 未归类的 SSH 目标 |
+`<perception_host>` / `<robot_host>` / `<ptq_host>` / `<Host>`
 
-汇报与知识库写清：**主机角色、路径占位符、时间**（BPU 另加容器/GPU）。
+汇报写清：**主机角色、路径占位符、时间**。
 
 ## 开发与验证
 
-- 改代码前确认当前副本与 `<project_root>`；避免只改一端未同步。
-- 构建/测试/查日志在**实际运行环境**（远端）执行。
-- 长任务用远端 `tmux`/`screen`；断连后 `tmux attach` 续查。
-- 路径：远端用 `<project_root>/...`；本机配置用 `$env:USERPROFILE\.cursor\...`。
+- 构建/测试/日志在**实际运行环境**执行。
+- 长任务用远端 `tmux`/`screen`。
+- 路径：远端 `<project_root>/...`。
 
-## Cursor 配置真源（禁止只改项目副本就结束）
+## 个人 Cursor 配置
 
-Remote-SSH 下改的 `<project_root>/.cursor/...` 是**安装副本**，不是 Git 真源。
-
-| 动作 | 正确位置 |
-|------|----------|
-| 持久化个人 rules/skills | `~/.cursor-personal-config/rules|skills` |
-| 推送 GitHub | 在该仓 `git pull --rebase` → commit → `git push` |
-| 同步到项目 | `install-to-project.sh <project_root>` |
-| 项目专有 `vln-*` / `project-overview` | **不要**拷进公开仓 |
-
-推荐：直接改 `~/.cursor-personal-config`，再 install；若已在项目副本改过，按 `sync-cursor-to-project` 反向拷回再 push。
-
-## 打开任意 SSH 工作区
-
-1. 每台 Linux 一次：`git clone <repo> ~/.cursor-personal-config`
-2. 每个项目一次：`~/.cursor-personal-config/scripts/install-to-project.sh <project_root>`
-3. 本机改配置：`publish-cursor-config.ps1` -> `git push`
+项目 `.cursor` 是 install 副本。持久化/推送/桥接见 skill `cursor-config-sync`（勿只改项目副本就结束）。
 
 ## 材料收集
 
-除本地 transcripts、terminals 外，必须纳入**当日涉及的远程主机**上的 git、日志、测试输出。见 `remote-ssh-dev` -> `remote-materials.md`。
-
-## 个人 Cursor 配置（skills/rules）
-
-- 真源：`~/.cursor-personal-config`（git），不是项目 `.cursor` 副本。
-- 板端无法 push GitHub 时：bundle → 本机 merge → push；见 `cursor-config-remote-sync`。
+本机 transcripts/terminals + 当日远端 git/日志。见 `remote-ssh-dev` → `remote-materials.md`。

@@ -27,7 +27,7 @@ description: >-
 2. **公开可审计**：遵循 `privacy-github`。
 3. **Agent 可发现**：`description` 英文第三人称，WHAT + WHEN。
 4. **结构稳定**：领域 skill 用 9 段骨架；rule 用短硬约束。
-5. **真源在配置仓**：Windows 可先改 `$env:USERPROFILE\.cursor\rules|skills` 再 publish；Linux / Remote-SSH **直接改** `~/.cursor-personal-config`，或把项目副本按 `sync-cursor-to-project` 反向拷回后再 push。**禁止**只改 `<project_root>/.cursor` 就当已发布。
+5. **真源在配置仓**：Windows 可先改 `$env:USERPROFILE\.cursor\rules|skills` 再 publish；Linux / Remote-SSH **直接改** `~/.cursor-personal-config`，或把项目副本按 `cursor-config-sync` 反向拷回后再 push。**禁止**只改 `<project_root>/.cursor` 就当已发布。
 
 ## 3. Skill vs Rule
 
@@ -120,7 +120,7 @@ edit USERPROFILE\.cursor\rules|skills
   -> install-to-project if needed
 ```
 
-若已在项目 `.cursor` 副本改过：先反向拷回真源；板端无法 push 时用 bundle 桥接（`cursor-config-remote-sync`）。
+若已在项目 `.cursor` 副本改过：先反向拷回真源；板端无法 push 时用 bundle 桥接（`cursor-config-sync`）。
 
 ## 10. 发布前门禁
 
@@ -143,4 +143,4 @@ edit USERPROFILE\.cursor\rules|skills
 
 ## 12. 相关
 
-- `privacy-github` / `field-validation-method` / `sync-cursor-to-project` / `cursor-config-remote-sync` / `work-reporting`
+- `privacy-github` / `field-validation-method` / `cursor-config-sync` / `work-reporting`

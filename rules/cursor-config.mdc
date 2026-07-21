@@ -1,0 +1,32 @@
+---
+description: Author and sync personal Cursor skills/rules (public config repo)
+globs: "**/.cursor/**/*"
+alwaysApply: false
+---
+
+# Cursor 配置（撰写 + 同步）
+
+触发：新增/改写 skills/rules、Remote-SSH 同步、板端无法 push、或问「怎么写/发布配置」。  
+详情：`author-cursor-config`（怎么写）、`cursor-config-sync`（怎么安装/推送）。
+
+## 撰写
+
+1. 抽象为普适方法论（决策树/门禁/故障分类/反模式+理由），不写单项目菜谱主轴。
+2. 遵守 `privacy-github`：无 IP/凭据/个人路径；用占位符。
+3. Skill 必有 YAML frontmatter（`name` + 英文 `description` 含 WHEN）；领域类优先 9 段骨架。
+4. Rule 保持短硬约束；长 SOP 放 skill。
+5. 增删后更新 `sync-manifest.json`；Windows 用 conda/UTF-8 验证中文可读。
+
+## 同步
+
+1. **真源是 git 仓**（`~/.cursor-personal-config` / 本机克隆）；项目 `.cursor` 只是 install 副本。
+2. 板端不能 push：`git bundle` → 有登录态机 merge → `git push`；禁 force push main。
+3. 只同步 manifest 列出的个人文件；不携项目专有配置。
+4. **不将 SSH 密码/PAT 写入** skills/rules；仅用 `<Host>`。
+5. push 后：各机 `git pull` + `install-to-project`；清理临时 bundle。
+
+## 禁止
+
+- 日报/实机原始数据贴进 skills
+- 只改项目 `.cursor` 就宣布「已发布」
+- 缺少理由的纯禁令堆积

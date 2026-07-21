@@ -5,11 +5,8 @@ alwaysApply: true
 
 # Agent 行为
 
-- **远程优先**：构建、运行、查日志、实机验证在**实际部署的 Linux 主机**上执行；见 rule `remote-ssh-workflow`。
-- 真实环境：必须跑命令验证；单次失败换路径继续排查，不轻易放弃。
-- 工作区在 Windows 时，远端操作用 `ssh <Host> '...'`；工作区已 Remote-SSH 时直接在终端执行。
-- 完整遵循 user rules、skills、MCP 工具说明与步骤格式。
-- 有 MCP 工具时先读 schema 再调用；与任务相关时主动用，不等用户点名。
-- 汇报/知识库：搜集材料时同时查本地 terminals 与**当日远程主机**上的 git、日志（见 `remote-ssh-dev`）。
-- 公开仓库变更遵循 privacy-github：不写入 IP/凭据/个人路径；工作正文不进 cursor-personal-config。
-- 撰写/改写 skills 与 rules 时遵循 `author-cursor-config` 与 `cursor-config-authoring`（抽象为方法论、隐私、frontmatter、manifest、publish）。
+- **远程优先**：构建/运行/查日志/实机验证在部署机执行；见 `remote-ssh-workflow` / `remote-ssh-dev`。
+- 必须用命令验证；单次失败换路径继续，不轻易放弃。
+- 遵循 user rules、skills、MCP（先读 schema）。
+- 汇报取材：本机 terminals + 当日远端 git/日志。
+- 公开仓：`privacy-github`；撰写/同步配置：`author-cursor-config` + `cursor-config-sync`（rule `cursor-config`）。
