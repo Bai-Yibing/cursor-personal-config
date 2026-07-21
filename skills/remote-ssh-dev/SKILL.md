@@ -26,6 +26,7 @@ description: >-
 4. 构建/测试在远端：`ssh <Host> 'cd <project_root> && <cmd>'` 或 Remote-SSH 终端。
 5. 验证在**同一台会跑服务的机器**上查进程、端口、日志、话题。
 6. 长任务：`tmux new -As <name>`；断连后 `tmux attach`。
+7. **长编译/量化**：一任务一容器（或一 GPU）；并行任务换容器换卡，避免互相 OOM/拖死。
 
 ## 3. 常用命令
 
@@ -39,7 +40,7 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 
 - 报告：改了什么、**哪台机器/角色**验证、如何复现。
 - 路径对照：本机 vs `<project_root>/...`（若两边都有）。
-- 写日报/知识库：读 [remote-materials.md](remote-materials.md)；证据标注 `???? | ????? | ??`。
+- 写日报/知识库：读 [remote-materials.md](remote-materials.md)；证据标注 `主机角色 | 路径占位符 | 时间`。
 
 ## 5. 调试与安全
 

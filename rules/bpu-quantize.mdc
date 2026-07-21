@@ -6,8 +6,10 @@ alwaysApply: false
 
 # NPU / PTQ 上板
 
-- 交付门禁：目标子图无意外 CPU/hybrid 段；产物落盘 + 成功日志；进度 UI 不算完成。
-- 能加载 ≠ 可上线：profiler + 板端延迟与任务指标；意外 CPU fallback 可致极慢。
-- 整图不支持则拆分；静态图与自回归/LLM runtime 分离部署。
-- 精度配方可破坏头部或门禁；保留带时间戳回退包；板端未测不宣称提升。
+- 优先级：全加速器门禁（CPU/hybrid=0）→ 任务精度 → 墙钟；不为 fp16/双核牺牲门禁。
+- 交付：产物落盘 + 成功日志；进度 UI 不算完成；中断保 `.bc` 可续编。
+- 能加载 ≠ 可上线：profiler + 板端延迟与任务**多指标**；禁止只盯单点校准 cosine。
+- 校准域须对齐部署分布；错域可过门禁却毁掉精度。
+- 整图不支持则先改图再 PTQ；静态图与 LLM runtime 分离；一长编译一容器/GPU。
+- 多核只给算力墙段且量化配方不变；墙钟含 host/DDR 时勿误判为算力不足。
 - 工作目录仅 `<ptq_workspace>`。详情见 `horizon-bpu-ptq` / `field-validation-method`。
