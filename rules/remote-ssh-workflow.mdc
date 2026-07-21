@@ -33,6 +33,19 @@ alwaysApply: true
 - 长任务用远端 `tmux`/`screen`；断连后 `tmux attach` 续查。
 - 路径：远端用 `<project_root>/...`；本机配置用 `$env:USERPROFILE\.cursor\...`。
 
+## Cursor 配置真源（禁止只改项目副本就结束）
+
+Remote-SSH 下改的 `<project_root>/.cursor/...` 是**安装副本**，不是 Git 真源。
+
+| 动作 | 正确位置 |
+|------|----------|
+| 持久化个人 rules/skills | `~/.cursor-personal-config/rules|skills` |
+| 推送 GitHub | 在该仓 `git pull --rebase` → commit → `git push` |
+| 同步到项目 | `install-to-project.sh <project_root>` |
+| 项目专有 `vln-*` / `project-overview` | **不要**拷进公开仓 |
+
+推荐：直接改 `~/.cursor-personal-config`，再 install；若已在项目副本改过，按 `sync-cursor-to-project` 反向拷回再 push。
+
 ## 打开任意 SSH 工作区
 
 1. 每台 Linux 一次：`git clone <repo> ~/.cursor-personal-config`

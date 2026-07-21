@@ -54,13 +54,20 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 
 | 主题 | Skill |
 |------|-------|
+| 配置同步（含反向推仓） | `sync-cursor-to-project` |
 | ROS2 / 实机 | `ros2-robotics` |
 | 建图方法论 | `visual-slam-mapping` |
 | 边缘 NPU/PTQ | `horizon-bpu-ptq` |
 | 防撞 | `nav-safety-collision` |
-| USB 相机 | `camera-usb-rgbd` |
+| USB / 双目相机 | `camera-usb-rgbd` |
 | 设备 IPC | `device-ipc-protocol` |
 | 现场验证方法 | `field-validation-method` |
+
+## Cursor 配置在远端怎么改
+
+- 真源：`~/.cursor-personal-config`（不是项目 `.cursor` 副本）。
+- 改完：`git commit && git push`，再 `install-to-project.sh <project_root>`。
+- 已在项目副本改过：按 `sync-cursor-to-project` 反向拷回再 push；勿把 `vln-*` 等项目专有配置推进公开仓。
 
 ## 禁止写入公开配置的内容
 

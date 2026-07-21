@@ -14,8 +14,9 @@ alwaysApply: false
 2. **遵守 `privacy-github`**：无 IP/凭据/个人路径；用占位符。
 3. Skill 必有 YAML frontmatter（`name` + 英文 `description` 含 WHEN）；领域类优先 9 段骨架。
 4. Rule 保持短硬约束；长 SOP 放入 skill。
-5. 增删后更新 `scripts/sync-manifest.json`，再 publish + push。
+5. 增删后更新根目录 `sync-manifest.json`，再 publish/push + install。
 6. Windows 下用 conda Python 以 UTF-8 写入并验证中文可读。
+7. Remote-SSH：真源是 `~/.cursor-personal-config`，不是项目 `.cursor` 副本。
 
 ## 禁止
 

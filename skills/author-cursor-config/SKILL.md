@@ -27,7 +27,7 @@ description: >-
 2. **公开可审计**：遵循 `privacy-github`。
 3. **Agent 可发现**：`description` 英文第三人称，WHAT + WHEN。
 4. **结构稳定**：领域 skill 用 9 段骨架；rule 用短硬约束。
-5. **真源在全局目录**：先改 `$env:USERPROFILE\.cursor\rules|skills`，再 publish。
+5. **真源在配置仓**：Windows 可先改 `$env:USERPROFILE\.cursor\rules|skills` 再 publish；Linux / Remote-SSH **直接改** `~/.cursor-personal-config`，或把项目副本按 `sync-cursor-to-project` 反向拷回后再 push。**禁止**只改 `<project_root>/.cursor` 就当已发布。
 
 ## 3. Skill vs Rule
 
@@ -103,14 +103,24 @@ globs: "**/*pattern*"
 ## 9. 发布 SOP
 
 ```text
-edit USERPROFILE\.cursor\rules|skills
-  -> update scripts\sync-manifest.json
+# 推荐（Linux / Remote-SSH）
+edit ~/.cursor-personal-config/rules|skills
+  -> update sync-manifest.json if add/remove
   -> update README if new skill
+  -> privacy grep
+  -> git commit + push
+  -> install-to-project.sh <project_root>
+
+# 或（Windows）
+edit USERPROFILE\.cursor\rules|skills
+  -> update sync-manifest.json
   -> privacy grep
   -> publish-cursor-config.ps1
   -> git commit + push
   -> install-to-project if needed
 ```
+
+若已在项目 `.cursor` 副本改过：先 `git -C ~/.cursor-personal-config pull --rebase`，再按 manifest 拷回仓内对应路径，自检后 commit/push。
 
 ## 10. 发布前门禁
 

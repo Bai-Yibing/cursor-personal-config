@@ -7,7 +7,9 @@ alwaysApply: false
 # 建图 / SLAM
 
 - 先定传感器拓扑与同步，再调参；前端跟踪与后端建图/闭环参数分离（Ignored 日志即硬信号）。
-- 验收看 lost%、loops、path/span、目视拓扑；覆盖率仅辅助（警惕开环位姿投影）。
+- **位姿 KPI 与占据 KPI 分表**：lost%/loops/path-span 与墙体/家具块状度不可互相替代。
+- 验收看闭环后拓扑与可导航性；覆盖率仅辅助（警惕开环位姿投影）。
 - 无纹理/透明表面走语义旁路；禁止外观 mask 进 VO；禁止语义标 free。
-- 长失锁禁随意 reset；防跳变 ≠ 可继续探索。详情见 `visual-slam-mapping` / `semantic-occupancy-fusion` / `field-validation-method`。
+- 长失锁禁随意 reset；防跳变 ≠ 可继续探索；未 recovered 则停扫。
+- 语义扩边必须 remap 投票，禁止静默整表清票。详情见 `visual-slam-mapping` / `semantic-occupancy-fusion` / `field-validation-method`。
 - 产物路径仅 `<maps_output>/<session>/`。
