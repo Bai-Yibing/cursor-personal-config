@@ -1,0 +1,22 @@
+---
+description: Bidirectional Cursor config sync across SSH boards and GitHub
+globs: "**/.cursor/**/*"
+alwaysApply: false
+---
+
+# Cursor 配置远端同步约束
+
+触发：Remote-SSH/板端改 skills/rules、反向同步、板端无法 push、或用户问「怎么把远端配置推上 GitHub」。详见 `cursor-config-remote-sync`。
+
+## 必须
+
+1. **真源是 git 仓**（`~/.cursor-personal-config` / 本机克隆）；项目 `.cursor` 只是 install 副本。
+2. 板端不能 push 时：`git bundle` → 有登录态机器 merge → `git push`；不要 force push main。
+3. 只同步 `sync-manifest.json` 列出的个人文件；不携项目专有配置。
+4. **不将 SSH 密码/PAT 写入** skills/rules/仓库；仅用 `<Host>` 角色。
+5. push 后：各机 `git pull` + `install-to-project`；清理临时 bundle。
+
+## 禁止
+
+- 只改项目 `.cursor` 就宣布「已发布」
+- 把实机密码写进对话产物或公开仓

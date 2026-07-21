@@ -66,6 +66,7 @@ git add -A && git commit -m "Update skills/rules" && git push
 | `camera-usb-rgbd` | USB 带宽、SBS 同帧、静态 CameraInfo、标定门禁 |
 | `device-ipc-protocol` | 设备客户端状态机、mock E2E、传输/schema 分离 |
 | `ros2-robotics` | ROS2 远端工程习惯与检查清单 |
+| `cursor-config-remote-sync` | 远端/板端改配置后反向同步、bundle 桥接、各端 install |
 | `author-cursor-config` | 撰写/迭代 skills 与 rules |
 | `remote-ssh-dev` | 角色化 SSH 开发与材料收集 |
 | `sync-cursor-to-project` | 正向安装与反向写回真源 |

@@ -55,3 +55,8 @@ Remote-SSH 下改的 `<project_root>/.cursor/...` 是**安装副本**，不是 G
 ## 材料收集
 
 除本地 transcripts、terminals 外，必须纳入**当日涉及的远程主机**上的 git、日志、测试输出。见 `remote-ssh-dev` -> `remote-materials.md`。
+
+## 个人 Cursor 配置（skills/rules）
+
+- 真源：`~/.cursor-personal-config`（git），不是项目 `.cursor` 副本。
+- 板端无法 push GitHub 时：bundle → 本机 merge → push；见 `cursor-config-remote-sync`。

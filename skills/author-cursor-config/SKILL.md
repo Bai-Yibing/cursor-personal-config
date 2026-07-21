@@ -120,7 +120,7 @@ edit USERPROFILE\.cursor\rules|skills
   -> install-to-project if needed
 ```
 
-若已在项目 `.cursor` 副本改过：先 `git -C ~/.cursor-personal-config pull --rebase`，再按 manifest 拷回仓内对应路径，自检后 commit/push。
+若已在项目 `.cursor` 副本改过：先反向拷回真源；板端无法 push 时用 bundle 桥接（`cursor-config-remote-sync`）。
 
 ## 10. 发布前门禁
 
@@ -143,4 +143,4 @@ edit USERPROFILE\.cursor\rules|skills
 
 ## 12. 相关
 
-- `privacy-github` / `field-validation-method` / `sync-cursor-to-project` / `work-reporting`
+- `privacy-github` / `field-validation-method` / `sync-cursor-to-project` / `cursor-config-remote-sync` / `work-reporting`

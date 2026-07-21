@@ -23,3 +23,4 @@ alwaysApply: false
 - 把日报/实机原始数据贴进 skills
 - 缺少理由的纯禁令堆积
 - 只改项目 `.cursor` 副本而不更全局真源（除非用户明确要求）
+8. 远端/板端发布与桥接推送：遵循 `cursor-config-remote-sync`（真源为 git 仓；无凭据时用 bundle）。

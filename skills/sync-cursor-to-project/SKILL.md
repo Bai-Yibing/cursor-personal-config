@@ -101,3 +101,7 @@ git push
 ## 远端 Agent
 
 若 `~/.cursor-personal-config` 不存在，提示用户先 `git clone`；然后运行 `install-to-project.sh`。
+
+## 板端无凭据时
+
+若板端已 commit 但无法 `git push`，不要卡在凭据配置上。改走 **bundle 桥接**：详见 skill `cursor-config-remote-sync` 路径 C。

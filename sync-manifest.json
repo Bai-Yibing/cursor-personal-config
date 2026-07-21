@@ -13,7 +13,8 @@
     "slam-mapping.mdc",
     "bpu-quantize.mdc",
     "nav-safety.mdc",
-    "cursor-config-authoring.mdc"
+    "cursor-config-authoring.mdc",
+    "cursor-config-sync.mdc"
   ],
   "skills": [
     "daily-report",
@@ -25,6 +26,7 @@
     "general-software-dev",
     "ros2-robotics",
     "sync-cursor-to-project",
+    "cursor-config-remote-sync",
     "author-cursor-config",
     "field-validation-method",
     "visual-slam-mapping",
