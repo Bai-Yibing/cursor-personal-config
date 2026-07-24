@@ -15,9 +15,18 @@ fi
 
 mkdir -p "$PROJECT_ROOT/.cursor/rules" "$PROJECT_ROOT/.cursor/skills" "$PROJECT_ROOT/.cursor/scripts"
 
-# git pull if this is a git checkout
+# git pull if this is a git checkout (bounded: board HTTPS to GitHub can hang)
 if [[ -d "$CONFIG_DIR/.git" ]]; then
-  git -C "$CONFIG_DIR" pull -q --rebase 2>/dev/null || git -C "$CONFIG_DIR" pull -q 2>/dev/null || true
+  export GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=1.1
+  if command -v timeout >/dev/null 2>&1; then
+    timeout 25 git -C "$CONFIG_DIR" pull -q --rebase 2>/dev/null \
+      || timeout 25 git -C "$CONFIG_DIR" pull -q 2>/dev/null \
+      || true
+  else
+    git -C "$CONFIG_DIR" pull -q --rebase 2>/dev/null \
+      || git -C "$CONFIG_DIR" pull -q 2>/dev/null \
+      || true
+  fi
 fi
 
 copy_rule() {
