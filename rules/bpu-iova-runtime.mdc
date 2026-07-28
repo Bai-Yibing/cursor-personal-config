@@ -9,10 +9,11 @@ alwaysApply: true
 
 硬约束：
 
-1. **先契约后推理**：同进程要用的模型，在任何 `run`/prefill/decode **之前**按已验证顺序全部加载并绑核；禁止先单模推理再晚加载第二模。
-2. **一次加载、进程内常驻**：`HB_HBMRuntime` / embeds runtime **禁止** `del` 后同 boot 再构造加载；工厂方法须缓存实例。多模式评测（A→B→C）要么全程复用已加载集合，要么**每模式独立冷启动会话**。
-3. **核是预算**：常驻模型 core 表写入配置；共享核的业务（如 Codec↔Decoder）视为**互斥会话**，切换须用户冷启动。
-4. **评测隔离**：会毒化的 stage 分进程；禁止「encoder-only → dual-load」「Codec 跑完 → del Talker → 再 load MTP」。
-5. **毒化即停**：同文件 md5 不变仍报 corrupted / 新进程也 load 失败 → 标毒化，**停止继续加载**；向用户说明。
-6. **禁止擅自 reboot**：未经用户明确要求，不得 reboot/shutdown。
-7. **加载成功 ≠ 任务达标**：IOVA 与精度门禁分开报（`horizon-bpu-ptq` / `field-validation-method`）。
+1. **先契约后推理**：同进程要用的模型，在任何 `run`/prefill/decode **之前**按已验证顺序全部加载并绑核。
+2. **兄弟段同预载**：同会话后续会用到的 peer（如 Talker+MTP、Enc+Dec）必须在**任一 peer 首次推理前**全部 load；禁止「先推理 A 再晚加载 B」（即使当前模式表面上不用 B）。
+3. **一次加载、进程内常驻**：禁止 `del` 后同 boot 再构造加载；工厂方法须缓存实例。多模式要么复用已加载集合，要么每模式独立冷启动。
+4. **核是预算**：共享核业务视为**互斥会话**，切换须用户冷启动。
+5. **评测隔离**：禁止 encoder-only→dual-load；禁止模式间卸载/晚加载 AR 栈。
+6. **毒化即停**：md5 不变仍 corrupted / 新进程也失败 → 停测，向用户说明。
+7. **禁止擅自 reboot**：未经用户明确要求，不得 reboot/shutdown。
+8. **加载成功 ≠ 任务达标**：IOVA 与精度门禁分列（`horizon-bpu-ptq` / `field-validation-method`）。
