@@ -13,7 +13,8 @@
     "slam-mapping.mdc",
     "bpu-quantize.mdc",
     "nav-safety.mdc",
-    "cursor-config.mdc"
+    "cursor-config.mdc",
+    "utf8-chinese-docs.mdc"
   ],
   "skills": [
     "daily-report",
@@ -31,6 +32,7 @@
     "horizon-bpu-ptq",
     "nav-safety-collision",
     "camera-usb-rgbd",
-    "device-ipc-protocol"
+    "device-ipc-protocol",
+    "utf8-chinese-docs"
   ]
 }

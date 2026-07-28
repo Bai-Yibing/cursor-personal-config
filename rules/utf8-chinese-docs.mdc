@@ -1,0 +1,31 @@
+---
+description: Chinese docs must be UTF-8; ban GBK/UTF-16 writes and unverified delivery
+alwaysApply: true
+---
+
+# 中文文档编码（硬约束）
+
+创建或修改**含中文**的 `.md` / `.txt` / 说明 / 经验 / 日报 / skills / rules 时：
+
+## 必须
+
+1. 落盘为 **UTF-8（无 BOM）**。
+2. 写完用 Python（或 skill `utf8-chinese-docs` 内脚本）做**文件级**校验：能 `decode('utf-8')`、无 U+FFFD、无四连问号、预期含中文的文件能检出 CJK。
+3. 在已有 UTF-8 中文文件上改字：优先 **StrReplace / 补丁**，避免整文件用易损坏通道重写。
+4. 细节与故障树见 skill **`utf8-chinese-docs`**（写入前先读）。
+
+## 禁止
+
+1. PowerShell `Set-Content` / `Out-File` / here-string 写中文（默认 GBK → `?`）。
+2. cmd / 默认 GBK 控制台用含中文的 echo/重定向生成文档。
+3. UTF-16 /「带签名 UTF-8」当默认交付。
+4. 未校验就交付含中文文档。
+5. 在 Python **普通**字符串里写 `\near_`、`\roi_`、`\root` 等——`\n`/`\r`/`\t`/`\b` 会被当成转义，静默吃掉字母或插入换行。
+
+## 修复
+
+中文变四连问号 / 乱码：按 `utf8-chinese-docs` 用 `\uXXXX` 或 base64 重写，再跑校验至退出码 0。
+
+## 自检
+
+控制台显示**不能**代替文件校验。以校验脚本退出码为准。

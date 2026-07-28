@@ -96,9 +96,14 @@ globs: "**/*pattern*"
 
 ## 8. 编码（Windows）
 
-1. 用 conda Python（如 Anaconda `python.exe`）写 **UTF-8 无 BOM**。
-2. 易破坏时用 `\uXXXX` 生成；写后 assert 含 CJK、标题可读。
-3. 不要仅信 PowerShell 控制台显示判断中文是否正常。
+写含中文的 md/txt/skills/rules：**先遵循 skill `utf8-chinese-docs` + rule `utf8-chinese-docs`**。
+
+摘要：
+
+1. 落盘 UTF-8 无 BOM；写完跑 `skills/utf8-chinese-docs/scripts/check_utf8_cjk.py`。
+2. 易破坏时用 `\uXXXX` 或 `--base64` 写入；勿用 PowerShell `Set-Content` 写中文。
+3. 普通 Python 字符串禁止 `\near_` / `\roi_` 这类转义陷阱。
+4. 不要仅信控制台显示判断中文是否正常。
 
 ## 9. 发布 SOP
 

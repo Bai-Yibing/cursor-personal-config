@@ -156,9 +156,7 @@ Markdown 标题（`#`–`####`）只写短名；补充说明放到标题下正�
 
 ### 9. 中文写入（Windows）
 
-用 UTF-8 Python 或 `\uXXXX` 生成脚本写盘；写后校验无 `????`。  
-禁止 PowerShell 默认编码写中文 md。  
-在 Python 普通字符串里不要写 `\near_` / `\roi_` 这类会被当成转义的片段（应写 `near_` 或用原始字符串）。
+统一遵循 skill / rule **`utf8-chinese-docs`**（通道选择、校验脚本、`\n` 转义陷阱）。经验文与 skills 同样适用；写完未过检不得交付。
 
 ## 取材清单
 

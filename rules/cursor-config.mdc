@@ -15,7 +15,7 @@ alwaysApply: false
 2. 遵守 `privacy-github`：无 IP/凭据/个人路径；用占位符。
 3. Skill 必有 YAML frontmatter（`name` + 英文 `description` 含 WHEN）；领域类优先 9 段骨架。
 4. Rule 保持短硬约束；长 SOP 放 skill。
-5. 增删后更新 `sync-manifest.json`；Windows 用 conda/UTF-8 验证中文可读。
+5. Windows 中文：按 `utf8-chinese-docs` 写入并校验；增删后更新 `sync-manifest.json`。
 
 ## 同步
 
