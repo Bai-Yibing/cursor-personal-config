@@ -1,18 +1,17 @@
 ---
 name: work-reporting-pipeline
 description: >-
-  End-to-end work reporting pipeline: daily report + daily knowledge base, then
-  automatic weekly aggregation for both 周报 and weekly knowledge summary. Use
-  when the user asks to 写日报和知识库, 今日收尾, 本周收尾, or set up the
-  full reporting workflow for the day or week.
+  End-to-end daily work reporting: leadership 日报 plus self-contained daily
+  experience summary (长文 + 短索引). Use when the user asks to 写日报, 写经验总结,
+  今日收尾, or set up the daily reporting workflow. Weekly reports are discontinued.
 disable-model-invocation: true
 ---
 
 # 工作汇报流水线
 
-日报、知识库、周报、周汇总的**标准执行顺序**。
+仅保留 **日报 + 每日经验总结**。不写周报、不写每周知识库汇总。
 
-## 每日收尾（用户说「写日报」「今日收尾」）
+## 每日收尾（「写日报」「今日收尾」「写经验总结」）
 
 按序执行，输出 **日报 1 份 + 知识库 2 份（长文 + 短索引）**：
 
@@ -23,58 +22,45 @@ disable-model-invocation: true
 
 规则：
 - 先搜集材料（本机 transcripts/terminals + **远端各 Host** git/日志），再写；见 `remote-ssh-dev` → remote-materials.md。
-- **经验写给自己**：比日报更细——完整推理链、全轮次证据表、独立结论节、误判记录；指标含**主机**列。
+- **经验写给自己且必须离线自包含**：关键日志摘录、diff、命令+期望输出、指标表嵌入正文；路径只做附录。详见 experience-summary-guide.md「零号门禁」。
 - 短索引 `YYYYMMDD.md` 仅作入口，**不可替代长文**。
 - 更新 `D:\Documents\知识库\索引\每日清单.md`。
 
 用户只说「写日报」时：写完日报后**主动问**是否同步生成当日知识库；用户曾说「每天都要」则直接生成两份。
 
-## 每周收尾（用户说「写周报」「本周收尾」；或周五）
+用户若仍说「写周报 / 本周收尾 / 周汇总」：**拒绝按周汇总流程执行**，改为提醒——请按日翻阅日报与经验总结；需要跨天回顾时人工阅读多日长文，系统不再自动产周报。
 
-按序执行，输出 **2 个文件**：
+## 仅补知识库
 
-| 步骤 | Skill | 输出 |
-|------|-------|------|
-| 1 | `weekly-knowledge-base` | `D:\Documents\知识库\每周汇总\YYYYWW.md` |
-| 2 | `weekly-report` | `D:\Documents\工作汇报\周报\YYYYWW.md` |
-
-规则：
-- **先读全周每日知识库**，再写周汇总；周报从日报+周知识库提炼，不跳过周知识库。
-- 对照上周周报「下周待办」完成情况。
-- 更新每日清单「是否已纳入周汇总」。
-
-## 仅补知识库 / 仅补周报
-
-- 「只写经验总结」→ 仅 `daily-knowledge-base`
-- 「只写周报」→ `weekly-knowledge-base` + `weekly-report`（两个都做）
+- 「只写经验总结」→ 仅 `daily-knowledge-base`（仍须满足自包含门禁）
 
 ## 目录结构（本机权威存档）
 
 ```text
 D:\Documents\                          ← 终稿必须在这里
-├── 工作汇报\日报\ / 周报\
-└── 知识库\每日经验\ / 每周汇总\ / 索引\
+├── 工作汇报\日报\
+└── 知识库\每日经验\ / 索引\
 
-/root/<项目>/.cursor/工作存档/            ← Remote-SSH 暂存（结构同上）
+<project_root>/.cursor/工作存档/         ← Remote-SSH 暂存（结构同上）
 ```
+
+历史「周报 / 每周汇总」目录若仍存在，仅作旧档，**不再写入**。
 
 ## 远程 SSH 保存流程
 
-在 S100-SSH 等工作区生成日报/知识库/周报时：
-
 1. 写入 `<项目根>/.cursor/工作存档/...`（与上表同结构）
-2. 执行 `pull-reports-to-local.ps1` 拉回 `D:\Documents\`
+2. 本机执行 `pull-reports-to-local.ps1` 拉回 `D:\Documents\`
 3. 确认本机文件存在后再算完成
 
-Hook 自动拉回：打开工作区、sessionStart、sessionEnd。
+Hook 可能在打开工作区 / sessionStart / sessionEnd 时自动拉回。
 
-## 每日收尾
+## 每日清单索引格式
 
 ```markdown
 # 每日经验索引
 
-| 日期 | 主题关键词 | 文件 | 周汇总 |
-|------|------------|------|--------|
+| 日期 | 主题关键词 | 文件 |
+|------|------------|------|
 ```
 
-新条目追加；周汇总后改「周汇总」列为「YYYYWW ✓」。
+新条目追加一行即可（不再维护「周汇总」列）。
