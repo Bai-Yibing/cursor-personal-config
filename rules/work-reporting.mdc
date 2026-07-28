@@ -1,5 +1,5 @@
 ---
-description: 日报与每日经验总结流水线（远程工作、本机存档；无周报）
+description: 日报与每日经验总结流水线（远程工作、本机存档；经验须可复现；无周报）
 alwaysApply: false
 ---
 
@@ -7,7 +7,7 @@ alwaysApply: false
 
 触发词：**日报、经验总结、知识库、今日收尾**
 
-（「周报 / 本周收尾 / 周汇总」已取消——若用户提起，说明只保留日报+日经验，不自动产周报。）
+（「周报 / 本周收尾 / 周汇总」已取消——若用户提起，说明只保留日报 + 日经验长文。）
 
 ## 加载 Skill
 
@@ -17,22 +17,22 @@ alwaysApply: false
 | 远程执行与取材 | remote-ssh-dev |
 | 日报 / 经验长文写法 | daily-report → experience-summary-guide.md |
 | 知识库结构化模板 | daily-knowledge-base |
-| 现场实验方法（O→H→V→C、run_meta） | field-validation-method |
-| 建图/语义/NPU/防撞/相机/IPC 方法论 | visual-slam-mapping / semantic-occupancy-fusion / horizon-bpu-ptq / nav-safety-collision / camera-usb-rgbd / device-ipc-protocol |
+| 现场实验方法 | field-validation-method |
+| 建图/语义/NPU/防撞/相机/IPC | visual-slam-mapping / semantic-occupancy-fusion / horizon-bpu-ptq / nav-safety-collision / camera-usb-rgbd / device-ipc-protocol |
 
 ## 硬性要求
 
-1. **终稿在本机**：本机文档目录为权威存档；远程 SSH 上写完必须 **pull 回本地**。
-2. 远端暂存：`<project_root>/.cursor/工作存档/`（与本机目录结构对齐）。
-3. 写完汇报后执行 pull-reports-to-local.ps1，并确认本机文件存在。
-4. 取材：本机 transcripts/terminals + 远端 git/日志（角色主机，见 remote-materials.md）。
-5. **日报 vs 经验**：日报写给领导（适度、可决策）；经验写给自己（**离线自包含**：嵌入日志摘录/diff/指标/命令，路径仅附录）。二者不可混写。
-6. **仅日报 + 每日经验**：不写周报、不写每周知识库汇总。
-7. **隐私**：实机 IP、凭据、原始 bag/地图/日志只写本机或远端存档；**不** publish 进公开的 cursor-personal-config（见 privacy-github）。
+1. **终稿在本机**：远程写完须 pull 回本地。  
+2. 远端暂存：`<project_root>/.cursor/工作存档/`。  
+3. 写完执行 `pull-reports-to-local.ps1`，确认本机文件存在。  
+4. 取材：transcripts/terminals + 远端 git diff / 日志 / `summary.json`。  
+5. **日报 vs 经验**：日报给领导；经验给自己，须可复现（方法卡、改前改后或待补、命令、原始字段、有边界结论）；文风为实验笔记。  
+6. **仅日报 + 经验长文**：不写周报；`YYYYMMDD.md` 不升格为经验正文；禁止「材料索引」与 dump 附录。  
+7. **不编造**：无证据标待补（主机角色 + 路径）。  
+8. **隐私**：公开配置仓无真实 IP/凭据。
 
-## 本机路径（示例）
+## 本机路径
 
-- 日报：`...\工作汇报\日报\YYYY-MM-DD-<主题>日报.md`
-- 经验长文：`...\知识库\每日经验\YYYY-MM-DD-<主题>经验总结.md`
-- 日索引：`...\知识库\每日经验\YYYYMMDD.md`
-- 索引表：`...\知识库\索引\每日清单.md`
+- 日报：`...\工作汇报\日报\YYYY-MM-DD-<主题>日报.md`  
+- 经验长文：`...\知识库\每日经验\YYYY-MM-DD-<主题>经验总结.md`  
+- 导航：`...\知识库\索引\每日清单.md`（可含样板对齐列）
