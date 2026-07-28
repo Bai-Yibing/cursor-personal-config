@@ -10,8 +10,9 @@ alwaysApply: true
 硬约束：
 
 1. **先契约后推理**：同进程要用的模型，在任何 `run`/prefill/decode **之前**按已验证顺序全部加载并绑核；禁止先单模推理再晚加载第二模。
-2. **核是预算**：常驻模型 core 表写入配置；勿与其它 daemon 默认同核抢映射。
-3. **评测隔离**：会毒化的 stage 必须分进程；E2E 进程内禁止「encoder-only → dual-load」类顺序。
-4. **毒化即停**：跨进程仍无法加载时标为毒化，**停止继续加载试验**；向用户说明原因。
-5. **禁止擅自 reboot**：未经用户明确要求，不得对板端执行 reboot/shutdown；恢复映射通常需用户冷启动。
-6. **加载成功 ≠ 任务达标**：IOVA 门禁与精度门禁分开报；精度见 `horizon-bpu-ptq` / `field-validation-method`。
+2. **一次加载、进程内常驻**：`HB_HBMRuntime` / embeds runtime **禁止** `del` 后同 boot 再构造加载；工厂方法须缓存实例。多模式评测（A→B→C）要么全程复用已加载集合，要么**每模式独立冷启动会话**。
+3. **核是预算**：常驻模型 core 表写入配置；共享核的业务（如 Codec↔Decoder）视为**互斥会话**，切换须用户冷启动。
+4. **评测隔离**：会毒化的 stage 分进程；禁止「encoder-only → dual-load」「Codec 跑完 → del Talker → 再 load MTP」。
+5. **毒化即停**：同文件 md5 不变仍报 corrupted / 新进程也 load 失败 → 标毒化，**停止继续加载**；向用户说明。
+6. **禁止擅自 reboot**：未经用户明确要求，不得 reboot/shutdown。
+7. **加载成功 ≠ 任务达标**：IOVA 与精度门禁分开报（`horizon-bpu-ptq` / `field-validation-method`）。
