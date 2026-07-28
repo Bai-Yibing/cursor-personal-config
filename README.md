@@ -23,6 +23,7 @@
 | Skill | 用途 |
 |-------|------|
 | `cursor-config-sync` | 安装、正/反向同步、bundle 桥接 |
+| `utf8-chinese-docs` | 中文文档 UTF-8 防写坏（含校验脚本） |
 | `author-cursor-config` | 如何撰写 skills/rules |
 | `remote-ssh-dev` | 远端 SSH 开发与取材 |
 | `field-validation-method` | O→H→V→C、验收指标 |
