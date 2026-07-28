@@ -1,0 +1,17 @@
+---
+description: 边缘 BPU/NPU 多模型 IOVA 与加载序硬约束
+alwaysApply: true
+---
+
+# BPU 多模型运行时（IOVA）
+
+上板加载 ≥2 个加速器模型，或出现 `iova addr not equal` / 假「model corrupted」时，遵循 skill **`edge-bpu-runtime-iova`**。
+
+硬约束：
+
+1. **先契约后推理**：同进程要用的模型，在任何 `run`/prefill/decode **之前**按已验证顺序全部加载并绑核；禁止先单模推理再晚加载第二模。
+2. **核是预算**：常驻模型 core 表写入配置；勿与其它 daemon 默认同核抢映射。
+3. **评测隔离**：会毒化的 stage 必须分进程；E2E 进程内禁止「encoder-only → dual-load」类顺序。
+4. **毒化即停**：跨进程仍无法加载时标为毒化，**停止继续加载试验**；向用户说明原因。
+5. **禁止擅自 reboot**：未经用户明确要求，不得对板端执行 reboot/shutdown；恢复映射通常需用户冷启动。
+6. **加载成功 ≠ 任务达标**：IOVA 门禁与精度门禁分开报；精度见 `horizon-bpu-ptq` / `field-validation-method`。

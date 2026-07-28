@@ -12,4 +12,6 @@ alwaysApply: false
 - 校准域须对齐部署分布；错域可过门禁却毁掉精度。
 - 整图不支持则先改图再 PTQ；静态图与 LLM runtime 分离；一长编译一容器/GPU。
 - 多核只给算力墙段且量化配方不变；墙钟含 host/DDR 时勿误判为算力不足。
-- 工作目录仅 `<ptq_workspace>`。详情见 `horizon-bpu-ptq` / `field-validation-method`。
+- **多模型同 SoC**：加载序与 IOVA 契约见 rule `bpu-iova-runtime` / skill `edge-bpu-runtime-iova`（禁止晚加载第二模；毒化勿擅自 reboot）。
+- 工作目录仅 `<ptq_workspace>`；模型资产 / 校准日志交付包分 `<models_root>` 与 `<data_root>`（见仓库 `STORAGE_LAYOUT` / rule `ptq-storage-layout`）。
+- 主机 Python：每 `task/<TASK>/.venv` 独立；禁止根目录 `.venv`/`.venv_oellm` 与 task 间软链；OELLM 用项目内 CPython + `venv --copies`，禁止外置宿主机还原树。详情见 `horizon-bpu-ptq` / `field-validation-method`。

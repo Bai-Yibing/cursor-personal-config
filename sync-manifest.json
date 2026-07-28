@@ -12,6 +12,8 @@
     "ros2-cpp-python.mdc",
     "slam-mapping.mdc",
     "bpu-quantize.mdc",
+    "bpu-iova-runtime.mdc",
+    "ptq-storage-layout.mdc",
     "nav-safety.mdc",
     "cursor-config.mdc",
     "utf8-chinese-docs.mdc"
@@ -30,6 +32,7 @@
     "visual-slam-mapping",
     "semantic-occupancy-fusion",
     "horizon-bpu-ptq",
+    "edge-bpu-runtime-iova",
     "nav-safety-collision",
     "camera-usb-rgbd",
     "device-ipc-protocol",

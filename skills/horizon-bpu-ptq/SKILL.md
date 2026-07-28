@@ -4,8 +4,9 @@ description: >-
   Edge NPU/BPU post-training quantization and on-device deployment methodology.
   Use when running hb_compile or similar toolchains, packaging HBM or binary
   artifacts, gating CPU fallback segments, tuning PTQ precision, splitting
-  unsupported graphs, multi-core scheduling, calibration domain matching, or
-  validating on-board latency and task metrics.
+  unsupported graphs, multi-core scheduling, calibration domain matching,
+  validating on-board latency and task metrics, or isolating per-task host
+  Python/venv (OELLM, leap compile, no shared softlinks).
 ---
 
 # 边缘 NPU/BPU 量化与部署方法论
@@ -24,6 +25,7 @@ description: >-
 - **静态图 vs 自回归运行时**：固定 shape 视觉前端可单次推理打包；LLM/VL 动态图用独立 runtime（System1+System2）。
 - **板端是真相**：开发机 cosine/编译 latency 不可替代板端墙钟与任务质量。
 - **墙钟 ≠ 加速器时间**：全 BPU 后 host/DDR/H2D 仍可占大半；要分段 profile。
+- **按 TASK 隔离主机 Python**：每个 `task/<TASK>/` 各自独立 `.venv`；禁止项目根 `.venv`/`.venv_oellm`；禁止 task 间软链共享；解释器须项目内基座 + `venv --copies`，禁止链到外置宿主机还原树。
 
 ## 3. 架构/选型决策树
 
@@ -70,7 +72,7 @@ description: >-
 | 加载成功但极慢 | ConvTranspose/Resize/Scatter 等落 CPU | 分段 profiler + advice Device 列 |
 | 门禁过但任务指标崩 | 校准域错误；或 kl/头层过激 | A/B 换真实域校准；回退上一配方 |
 | 敏感层 fp16 后更慢 | 算子打回 CPU/hybrid | 对照 CPU 段计数；废版 |
-| 双核无收益或更慢 | 瓶颈在 DDR；或加载顺序/IOVA | 只核对称量段；先 load 重段再轻段 |
+| 双核无收益或更慢 | 瓶颈在 DDR；或加载顺序/IOVA | 只核对称量段；先 load 重段再轻段；多模契约见 `edge-bpu-runtime-iova` |
 | 近距深度 mm 级无解 | 部署分辨率下视差采样不够 | 算 mm/px 预算；ROI/分辨率/训练，而非加 calib |
 
 ## 7. 反模式与理由
@@ -86,10 +88,12 @@ description: >-
 | 为双核改量化配方 | 回到 CPU 慢路径 | 只改 `core_num`/调度 |
 | 单包赌大模型 | 图超限 | System1+2 |
 | 用实验室远景集校准近距机器人 | 激活分布错位 | 按本机 B/fx 与距离桶建校准 |
+| 根目录或 task 间软链共享 venv | 升级踩踏、路径语义乱、容器/换机失效 | 每 task 独立 `.venv` + 项目内 `--copies` |
 
 ## 8. 交付/复盘检查清单
 
-- [ ] 容器/GPU 隔离；路径在 `<ptq_workspace>`
+- [ ] 容器/GPU 隔离；**模型进 models 根、数据进 data 根**（三分区，禁止项目根堆大文件）
+- [ ] 主机环境：每 task 独立 `.venv`（无根目录/软链共享）；python 为项目内 `--copies`，非外置宿主机路径
 - [ ] 改图 float 多指标对齐（若做过 surgery）
 - [ ] 每段 CPU=0、可加载、调用顺序与多核绑定已核对
 - [ ] 校准域说明与 held-out 策略已记录
@@ -97,8 +101,33 @@ description: >-
 - [ ] 板端：加速器时间 + 墙钟 + 任务多指标
 - [ ] 汇报标注 `<ptq_host>`、包路径占位符、时间
 
+## 8.1 存储布局（边缘 PTQ）
+
+模型产物与校准/日志/交付包**分根**：`<models_root>` vs `<data_root>`；按 **TASK** 分子目录。编译 scratch → `work/<TASK>/`，交付 → `packages/<TASK>/`。具体树与迁移脚本以仓库 `docs/STORAGE_LAYOUT.md` 为准。
+
+## 8.2 主机 Python / 按 TASK 隔离 venv
+
+| 约定 | 要求 |
+|------|------|
+| 位置 | 仅 `task/<TASK>/.venv`；**禁止**项目根 `.venv` / `.venv_oellm` |
+| 共享 | **禁止** task↔task、根↔task 软链「省空间」；各 task 独立目录 |
+| 解释器 | 官方 cp310 wheel → 项目内基座（如 `<ptq_workspace>/toolchains/cpython-3.10`）+ `python -m venv --copies` |
+| 外置路径 | **拒绝** stereo / restore_* 等宿主机还原树；activate/setup 应检测并报错 |
+| 轻量 task | 可用系统 `python3.x` + `--copies`，仍须独立 `.venv` 目录 |
+| 容器 | 若解释器或 `home=` 指到容器外路径，容器内不可直接跑；leap 编译在能访问该基座的主机环境执行 |
+
+SOP（OELLM / leap）：
+
+1. 确认项目内 CPython 3.10 基座可用（bootstrap / `HORIZON_PYTHON310`，路径在 `<ptq_workspace>` 内）。
+2. 默认 task：`bash scripts/setup_oellm_env.sh` → `task/<default>/.venv`。
+3. 其他 task：`HORIZON_OELLM_VENV=<ptq_workspace>/task/<TASK>/.venv bash scripts/setup_oellm_env.sh`。
+4. `source scripts/activate_oellm.sh`（按需设 `HORIZON_OELLM_VENV`）；拒绝软链与外置 python。
+
+反模式：根目录软链到某 task venv；ASR 软链 TTS；直接用宿主机还原 Python —— 换机/容器失效、升级互相踩踏、路径语义混乱。
+
 ## 9. 相关 skills
 
 - 实验与置信度：`field-validation-method`
+- 多模型加载 / IOVA：`edge-bpu-runtime-iova`
 - 语义检测上板：`semantic-occupancy-fusion`
 - 远端执行与取材：`remote-ssh-dev`

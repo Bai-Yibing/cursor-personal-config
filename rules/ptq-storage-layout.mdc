@@ -1,0 +1,28 @@
+---
+description: Horizon PTQ 三分区存储布局硬约束（models vs data vs project）
+globs: "**/horizon-s100-s600-ptq/**"
+alwaysApply: false
+---
+
+# 统一存储布局（硬约束）
+
+量化 / 编译 / 打包任务必须遵守 `docs/STORAGE_LAYOUT.md`。
+
+## 三分区
+
+- **代码**：`<project_root>`（`horizon-s100-s600-ptq`）— 脚本、配置、task、OE SDK
+- **模型**：`<models_root>` — `checkpoints|weights|onnx|hbm|llm`，一级子目录为 **TASK**
+- **数据**：`<data_root>` — `calib|datasets|logs|eval|finetune|work|packages|releases|cache|archive`，按 **TASK** 归类
+
+## 禁止
+
+- 在项目根实目录堆积权重 / HBM / 校准 / 日志 / tar
+- 新产物写入 `workspace/output/`（改写 `data/work/<TASK>/`）
+- `hbm/<TASK>/deliver/` 当长期交付区（改写 `data/packages/<TASK>/`）
+- calib / packages 扁平「任务名+变体」顶层目录（应用 `calib/<TASK>/<VARIANT>/`）
+- 发明第四套根路径；默认值必须来自 `configs/paths.yaml` / `scripts/env.sh`
+- 项目根 `.venv` / `.venv_oellm`，或 task↔task / 根↔task **软链共享** venv（每 task 独立目录；解释器见 `horizon-bpu-ptq` §8.2）
+
+## 新任务
+
+先跑 `bash scripts/layout_ensure.sh <TASK>`，再写脚本默认路径。迁移与检查：`layout_migrate.sh` / `layout_check.py`。

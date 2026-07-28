@@ -27,7 +27,7 @@
 | `author-cursor-config` | 如何撰写 skills/rules |
 | `remote-ssh-dev` | 远端 SSH 开发与取材 |
 | `field-validation-method` | O→H→V→C、验收指标 |
-| `visual-slam-mapping` / `semantic-occupancy-fusion` / `horizon-bpu-ptq` / `nav-safety-collision` / `camera-usb-rgbd` / `device-ipc-protocol` | 领域方法论 |
+| `visual-slam-mapping` / `semantic-occupancy-fusion` / `horizon-bpu-ptq` / `edge-bpu-runtime-iova` / `nav-safety-collision` / `camera-usb-rgbd` / `device-ipc-protocol` | 领域方法论 |
 | `ros2-robotics` | ROS2 远端工程 |
 | `daily-report` / `daily-knowledge-base` / `weekly-*` / `work-reporting-pipeline` | 汇报流水线 |
 
