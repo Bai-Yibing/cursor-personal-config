@@ -5,15 +5,15 @@ alwaysApply: true
 
 # BPU 多模型运行时（IOVA）
 
-上板加载 ≥2 个加速器模型，或出现 `iova addr not equal` / 假「Hbm corrupted」时，遵循 skill **`edge-bpu-runtime-iova`**。
+上板加载 ≥2 个加速器模型包，或出现 `iova addr not equal` / 假「model corrupted」时，遵循 skill **`edge-bpu-runtime-iova`**。
 
 硬约束：
 
-1. **先契约后推理**：会话内模型在任何 `run`/prefill/decode **之前**按契约齐套加载并绑核。
-2. **默认加载序**：TTS **MTP@2 → Talker@2 → Codec@3**（Codec 可单独用于仅解码路径）；ASR **Enc@2 → Dec@3**。粘滞后 Talker→MTP 常死、MTP→Talker 仍可——禁止把 Talker 优先当唯一序。
-3. **会话结束必须 Release**：`close()` / `del`+`gc`（`hbDNNRelease`）。禁止「永不卸载、绑到 reboot」。
-4. **禁止晚载兄弟段**：先推理 A 再 load peer B；禁止两存活进程并发握 leap HBM。
-5. **分单模 / 双模 / 粘滞**：单模 load↔Release 通常 OK；双模失败后先 `bpu_soft_recover`（看是否 sticky_asym）；仅双序 dual 全死或 Codec 死映射时请用户冷启。
-6. **假 corrupted 当 IOVA**：勿 scp 重推 HBM；Agent **禁止擅自 reboot**。
-7. **核预算**：感知常占 0/1；语音勿绑 0/1。Codec `core_0↔core_N` 优先查 AltServer。
+1. **先契约后推理**：会话内模型在任何 `run`/prefill/decode **之前**按已验证顺序齐套加载并绑核。
+2. **加载序以探针为准**：同会话 peer 须齐套；粘滞后可能仅一序可 dual——锁定存活序，禁止把某一产品名序写成唯一公理。
+3. **会话结束必须 Release**（`close()` / `del`+`gc` / 厂商 release API）。禁止「永不卸载、绑到 reboot」。
+4. **禁止晚载兄弟段**：先推理 A 再 load peer B；禁止两存活进程并发握 leap/双模包。
+5. **分单模 / 双模 / 粘滞**：单模 load↔Release 通常 OK；双模失败先软恢复探针；仅双序 dual 全死或与常驻 daemon 死锁映射时请用户冷启。
+6. **假 corrupted 当 IOVA**：勿靠重推模型包修复；Agent **禁止擅自 reboot**。
+7. **核是预算**：为常驻感知/视觉 daemon 预留核；应用模型勿抢其核。日志总打到 daemon 核时先查占核冲突。
 8. **加载成功 ≠ 任务达标**（`horizon-bpu-ptq` / `field-validation-method`）。
