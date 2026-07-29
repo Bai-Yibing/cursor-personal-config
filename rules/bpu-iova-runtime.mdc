@@ -10,10 +10,13 @@ alwaysApply: true
 硬约束：
 
 1. **先契约后推理**：同进程要用的模型，在任何 `run`/prefill/decode **之前**按已验证顺序全部加载并绑核。
-2. **兄弟段同预载**：同会话后续会用到的 peer（如 Talker+MTP、Enc+Dec）必须在**任一 peer 首次推理前**全部 load；禁止「先推理 A 再晚加载 B」（即使当前模式表面上不用 B）。
-3. **一次加载、进程内常驻**：禁止 `del` 后同 boot 再构造加载；工厂方法须缓存实例。多模式要么复用已加载集合，要么每模式独立冷启动。
-4. **核是预算**：共享核业务视为**互斥会话**，切换须用户冷启动。
-5. **评测隔离**：禁止 encoder-only→dual-load；禁止模式间卸载/晚加载 AR 栈。
-6. **毒化即停**：md5 不变仍 corrupted / 新进程也失败 → 停测，向用户说明。
-7. **禁止擅自 reboot**：未经用户明确要求，不得 reboot/shutdown。
+2. **兄弟段同预载**：peer（Talker+MTP、Enc+Dec）须在任一 peer **首次推理前**齐套；禁止先推理 A 再晚载 B。
+3. **分清单模 / 双模 / 毒化**：
+   - **单 HBM**：load→del→再 load、跨进程再 load，通常 OK。
+   - **多 HBM dual-load**：冷启后首次齐套通常 OK；一旦本 boot 已 dual 失败，禁止再赌 enc+dec；假 corrupted 当 IOVA。
+   - **Python `del` ≠ 已证实的 `hbDNNRelease`**；未完整释放时常见「单模能载、双模不能」。
+4. **核是预算，不是「一 boot 一路」公理**：感知常占 0/1；AR@2；Codec/Decoder@3。ASR 干净退出后 Talker/MTP 可同 boot 再载。Codec `core_0↔core_3` 优先查 AltServer/双 `hrt_ucp_monitor`，勿归因成「跑过 ASR」。
+5. **冷启写窄**：连续假 corrupted / dual-load 已失败残留 / 并发握锁打坏 / Codec 死映射 → 请用户冷启。**禁止**仪式性「换管线就 reboot」。Agent **禁止擅自 reboot**。
+6. **软件门禁**（如 `bpu_session`）：拦存活并发 owner 与 `poisoned`；允许干净退出后 pipeline 切换；`poisoned=true` 时仍可能单模能载，但 **禁止再 dual** 直至冷启。
+7. **评测**：优先同进程 `eval --dump-encoder-dir`；encoder-only 后勿盲 dual；勿把 scp/重推 HBM 当 IOVA 修复。
 8. **加载成功 ≠ 任务达标**：IOVA 与精度门禁分列（`horizon-bpu-ptq` / `field-validation-method`）。
