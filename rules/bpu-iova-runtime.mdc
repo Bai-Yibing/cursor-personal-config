@@ -13,7 +13,8 @@ alwaysApply: true
 2. **加载序以探针为准**：同会话 peer 须齐套；粘滞后可能仅一序可 dual——锁定存活序，禁止把某一产品名序写成唯一公理。
 3. **会话结束必须 Release**（`close()` / `del`+`gc` / 厂商 release API）。禁止「永不卸载、绑到 reboot」。
 4. **禁止晚载兄弟段**：先推理 A 再 load peer B；禁止两存活进程并发握 leap/双模包。
-5. **分单模 / 双模 / 粘滞**：单模 load↔Release 通常 OK；双模失败先软恢复探针；仅双序 dual 全死或与常驻 daemon 死锁映射时请用户冷启。
-6. **假 corrupted 当 IOVA**：勿靠重推模型包修复；Agent **禁止擅自 reboot**。
-7. **核是预算**：为常驻感知/视觉 daemon 预留核；应用模型勿抢其核。日志总打到 daemon 核时先查占核冲突。
-8. **加载成功 ≠ 任务达标**（`horizon-bpu-ptq` / `field-validation-method`）。
+5. **跨管线 handoff 默认不对称**：Release 成功 ≠ 反向管线可 dual。只按**已板上实锤的方向**切换；未验证方向视为高风险（评测默认 **一 boot 一主管线**）。
+6. **分单模 / 双模 / 粘滞**：单模 load↔Release 通常 OK；双模失败先软恢复探针；仅双序 dual 全死或与常驻 daemon 死锁映射时请用户冷启。
+7. **已 poison：停测**：禁止为「赶进度」设 bypass / force 强载。假 corrupted 当 IOVA，勿重推模型包。Agent **禁止擅自 reboot**。
+8. **核是预算**：为常驻感知/视觉 daemon 预留核；应用模型勿抢其核。日志总打到 daemon 核时先查占核冲突。
+9. **加载成功 ≠ 任务达标**（`horizon-bpu-ptq` / `field-validation-method`）。
