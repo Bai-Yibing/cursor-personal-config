@@ -17,13 +17,12 @@
     "nav-safety.mdc",
     "cursor-config.mdc",
     "utf8-chinese-docs.mdc",
-    "project-continuity.mdc"
+    "project-continuity.mdc",
+    "knowledge-lifecycle.mdc"
   ],
   "skills": [
     "daily-report",
-    "weekly-report",
     "daily-knowledge-base",
-    "weekly-knowledge-base",
     "work-reporting-pipeline",
     "remote-ssh-dev",
     "ros2-robotics",
@@ -38,6 +37,7 @@
     "camera-usb-rgbd",
     "device-ipc-protocol",
     "utf8-chinese-docs",
-    "project-continuity"
+    "project-continuity",
+    "knowledge-lifecycle"
   ]
 }

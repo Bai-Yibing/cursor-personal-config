@@ -44,18 +44,19 @@ disable-model-invocation: true
 
 ## 输出
 
-- 长文：`D:\Documents\知识库\每日经验\YYYY-MM-DD-<主题>经验总结.md`  
-- 远端暂存：`<项目根>/.cursor/工作存档/知识库/每日经验/`  
-- 导航：`知识库/索引/每日清单.md`（可含「样板对齐」列；不是经验正文）  
+- 长文：`D:\Documents\知识库\每日经验\YYYY-MM-DD-<主题>经验总结.md`
+- 远端暂存：`<workspace_root>/.cursor/工作存档/知识库/每日经验/`；多项目当天只保留一篇，按项目分节
+- 导航：`知识库/索引/每日清单.md`（可含「样板对齐」列；不是经验正文）
 - `YYYYMMDD.md`：仅导航占位，不升格为经验
 
 ## 中文编码
 
-Windows 写含中文 md：用 UTF-8 Python / `\uXXXX` 生成脚本；写后校验无 `????`。  
+Windows 写含中文 md：用 UTF-8 Python / `\uXXXX` 生成脚本；写后校验不存在连续四个问号。
 禁止 PowerShell `Set-Content` 默认编码写中文。脚本字符串里勿写 `\near_` 这类会被当成换行转义的片段。
 
 ## 交付前自检
 
-- [ ] 六段结构或诚实空档/骨架说明  
-- [ ] 方法卡 + 含预期的实验环；关键字段有出处  
-- [ ] 无材料索引 / dump；结论有边界；本机终稿存在  
+- [ ] 六段结构或诚实空档/骨架说明
+- [ ] 方法卡 + 含预期的实验环；关键字段有出处
+- [ ] 无材料索引 / dump；结论有边界；本机终稿存在
+- [ ] 各项目的重要事实已回写 `PROJECT_STATE.md` / ADR / investigation；可迁移经验已按 `knowledge-lifecycle` 判断是否升级

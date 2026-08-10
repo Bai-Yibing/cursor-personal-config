@@ -152,5 +152,6 @@ description: >-
 - 远端运行与取材：`remote-ssh-dev`
 - 现场证据与验收：`field-validation-method`
 - 日常经验沉淀：`daily-knowledge-base`
+- 多项目归档与经验升级：`knowledge-lifecycle`
 - 公开配置发布：`author-cursor-config`、`cursor-config-sync`
 - 脱敏要求：`privacy-github`

@@ -37,16 +37,16 @@ D:\Documents\
 ├── 工作汇报\日报\
 └── 知识库\每日经验\ / 索引\每日清单.md
 
-<project_root>/.cursor\工作存档\   ← Remote-SSH 暂存
+<workspace_root>/.cursor\工作存档\   ← Remote-SSH 统一暂存
 ```
 
 禁止：`周报/`、`每周汇总/`、专题旁路目录冒充知识库。
 
 ## 远程保存
 
-1. 写入工作存档  
-2. `pull-reports-to-local.ps1`  
-3. 确认本机文件存在  
+1. 写入统一工作存档；多项目当天只写一套，按项目分节
+2. `pull-reports-to-local.ps1`
+3. 确认本机文件存在
 
 ## 全库改造时
 

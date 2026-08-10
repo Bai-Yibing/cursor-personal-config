@@ -22,14 +22,15 @@ alwaysApply: false
 
 ## 硬性要求
 
-1. **终稿在本机**：远程写完须 pull 回本地。  
-2. 远端暂存：`<project_root>/.cursor/工作存档/`。  
-3. 写完执行 `pull-reports-to-local.ps1`，确认本机文件存在。  
-4. 取材：transcripts/terminals + 远端 git diff / 日志 / `summary.json`。  
-5. **日报 vs 经验**：日报给领导；经验给自己，须可复现（方法卡、改前改后或待补、命令、原始字段、有边界结论）；文风为实验笔记。  
-6. **仅日报 + 经验长文**：不写周报；`YYYYMMDD.md` 不升格为经验正文；禁止「材料索引」与 dump 附录。  
-7. **不编造**：无证据标待补（主机角色 + 路径）。  
+1. **终稿在本机**：远程写完须 pull 回本地。
+2. 远端暂存：`<workspace_root>/.cursor/工作存档/`；多项目共用同一暂存根，不在各项目重复建日报库。
+3. 写完执行 `pull-reports-to-local.ps1`，确认本机文件存在。
+4. 取材：transcripts/terminals + 远端 git diff / 日志 / `summary.json`。
+5. **日报 vs 经验**：日报给领导；经验给自己，须可复现（方法卡、改前改后或待补、命令、原始字段、有边界结论）；文风为实验笔记。
+6. **仅日报 + 经验长文**：不写周报；`YYYYMMDD.md` 不升格为经验正文；禁止「材料索引」与 dump 附录。
+7. **不编造**：无证据标待补（主机角色 + 路径）。
 8. **隐私**：公开配置仓无真实 IP/凭据。
+9. **项目闭环**：日报前后更新各项目 `docs/PROJECT_STATE.md`、决策或调查记录；跨项目归档和经验升级遵循 `knowledge-lifecycle`。
 
 ## 本机路径
 
