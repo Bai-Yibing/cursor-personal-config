@@ -30,6 +30,7 @@
 | `visual-slam-mapping` / `semantic-occupancy-fusion` / `horizon-bpu-ptq` / `edge-bpu-runtime-iova` / `nav-safety-collision` / `camera-usb-rgbd` / `device-ipc-protocol` | 领域方法论 |
 | `ros2-robotics` | ROS2 远端工程 |
 | `daily-report` / `daily-knowledge-base` / `weekly-*` / `work-reporting-pipeline` | 汇报流水线 |
+| `project-continuity` | 跨会话项目状态、决策、故障证据与交接 |
 
 ## 同步清单
 

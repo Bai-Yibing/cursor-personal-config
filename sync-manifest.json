@@ -16,7 +16,8 @@
     "ptq-storage-layout.mdc",
     "nav-safety.mdc",
     "cursor-config.mdc",
-    "utf8-chinese-docs.mdc"
+    "utf8-chinese-docs.mdc",
+    "project-continuity.mdc"
   ],
   "skills": [
     "daily-report",
@@ -36,6 +37,7 @@
     "nav-safety-collision",
     "camera-usb-rgbd",
     "device-ipc-protocol",
-    "utf8-chinese-docs"
+    "utf8-chinese-docs",
+    "project-continuity"
   ]
 }
