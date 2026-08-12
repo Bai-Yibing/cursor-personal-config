@@ -27,7 +27,21 @@
 3. **已有汇报终稿**：本机文档目录（按团队约定）
 4. **远端汇报暂存**：`<project_root>/.cursor/工作存档/` -> 本机 pull 脚本拉回
 
-## 远程材料（按主机角色执行）
+## 远程材料（先盘点主机，再逐台执行）
+
+### 主机覆盖台账
+
+日报/经验取材先写一份临时台账（可放在当天归档草稿中，不进入个人配置仓）：
+
+```text
+host_role | alias | source | probe_time | connection | projects | evidence | conclusion
+<ptq_host> | <Host> | ssh-config + terminal | YYYY-MM-DD HH:MM | connected | <project_root> | git/log/report | evidence_found
+<robot_host> | <Host> | known-role | YYYY-MM-DD HH:MM | failed | unknown | none | connection_failed
+```
+
+候选主机来源包括 SSH config 别名、已知角色、当天终端/Remote-SSH 记录和用户明确提供的目标。失败、无活动、权限不足和待确认都要保留在台账中。台账未完成时，不得把报告写成“今日全部工作”。
+
+### 按主机角色执行
 
 ```bash
 git log --since="today 0:00" --oneline
@@ -40,6 +54,8 @@ source /opt/ros/*/setup.bash 2>/dev/null; source <project_root>/install/setup.ba
 ros2 node list 2>/dev/null
 tmux capture-pane -pt '<session>' -S -300 2>/dev/null
 ```
+
+每台主机至少保存一条可追溯证据或失败原因，并标注 `主机角色 | 项目根 | 时间`。不要只收集当前终端所在主机。
 
 ## 执行方式
 

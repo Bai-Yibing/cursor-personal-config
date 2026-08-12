@@ -33,4 +33,4 @@ alwaysApply: true
 
 ## 材料收集
 
-本机 transcripts/terminals + 当日远端 git/日志。见 `remote-ssh-dev` → `remote-materials.md`。
+日报/经验前先枚举 SSH config、已知角色、当天终端记录和用户明确目标中的候选远程主机，再逐台收集当日远端 git/日志/服务证据。连接失败、无活动或权限不足必须记录原因；当前 Remote-SSH 会话不代表全部主机。详见 `remote-ssh-dev` → `remote-materials.md`。
