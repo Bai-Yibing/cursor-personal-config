@@ -25,6 +25,14 @@ description: >-
 - **优先级**：全加速器门禁（CPU/hybrid=0）→ 任务精度 → 墙钟速度。不为提速或「敏感层 fp16」牺牲门禁。
 - **加速器常驻**：目标子图无意外 CPU/hybrid；否则延迟与确定性不可控。
 - **校准域对齐**：校准激活分布须贴近部署（近距视差、真实 latent、真实 RGB、真实 AR 轨迹）；错域可过门禁却毁掉任务指标。
+- **Leap 校准必须走过导出图同一套 fakequant**：`build()` 里的 `ConstFakeQuant` / `qk_matmul` / `wv_matmul` 若只在导出路径出现、torch `forward` 仍走裸 `matmul`，absmax 会停在 0，HBM scale 落到 eps；编译仍可能 `cpu/hybrid=0`。校准 `forward` 必须调用与 `build()` 相同的量化节点，并在编译 JSON 里记录 absmax。
+- **T=1 对齐不能代替 T>1 layout**：卷积/序列维若 `leap.reshape` 漏了与 `torch.transpose` 对等的轴交换，decode `seq=1` 仍可高 cosine，prefill `T>=2` 会掉到接近 0 或负数。
+- **单层 isolate 高 cosine 不能证明融合前缀**：w8 块可能系统性缩小 RMS；下游层若直接吃未对齐的 hidden，会复现整段融合包的误差。拼接对照时要记 RMS gain，不能只报 isolate。
+- **部署域重校准注意力前先做 same-feed**：把 HBM 残差×RMS 再编进注意力层，可能几乎不改 absmax，融合 cosine 还会更差。先比「同一 xs 上 HBM 注意力 vs float 注意力」和「float 注意力(xs) vs 全 float 下游」。若前者仍高、后者已掉，漏斗在残差内容被注意力放大，不要再按该配方编更深注意力。
+- **段间 RMS 胶水有上限**：host 标量 gain 不能把已漂 hidden 拉回 teacher。需要的恢复量要用 teacher 混合（lerp）标定；到不了就换融合图或改量化，而不是再叠一层 RMS。
+- **HBM 对 float 断崖要先跟 host 量化仿真三方对照**：若仿真贴 float、HBM 贴仿真失败侧，漏斗在 convert，不在校准 `forward`。量化 RMSNorm 默认可能系统性改 RMS；`preserve_precision` 双路径包（不覆盖默认交付）可把浅层/融合 hidden 拉回仿真。这只证明 convert 契约，不等于 greedy/板上生成。
+- **isolate 注意力加宽或去掉 matmul ConstFQ 的收益不能写入融合包**：单层 stitch 上升时，整网 hidden 仍可能不变或更差。对照必须同时跑融合 hidden，禁止用最深一层的局部配方覆盖默认交付。
+- **板端时延必须独占加速器并记录频率**：并发占核的墙钟不能当芯片能力；CPU pin 与 live governor 可能只改变 pre/post，不改变 `rt.run` infer。
 - **同 feed 才可比**：主机 verifier / 板端 / float 对照必须同一预处理、同一输入张量域；跨域数字只能当线索。
 - **calib ≠ held-out**：评测集不得再当下一轮校准；同矩阵重编若零收益则停。
 - **静态图 vs 自回归运行时**：固定 shape 视觉前端可单次推理打包；LLM/VL/TTS Talker 动态图用独立 runtime（System1+System2）；运行时 mask/dtype/prefill 契约须与编译一致。
@@ -97,6 +105,16 @@ description: >-
 | 尾段手术无效 | 上游节点 cosine 已崩 | 读编译逐节点表；刀口移到首崩层 |
 | 升 w8 后某路径崩 | 位宽/尺度不适合该子图 | 回退已验收位宽；禁止默认「更宽更好」 |
 | 导出/PTQ 前数值对不齐 | 不可导出算子未做等价层 | 层对齐不过则阻塞编译 |
+| 编译驻留过、HBM vs float cosine 接近 0、KV/matmul scale 为 eps | torch 校准 `forward` 没调用 `build()` 里的 fakequant | 对齐官方 leap 图的 `cache_*_fq` 与量化 matmul；看 calib absmax 是否为 O(1)+ |
+| decode T=1 高 cosine、prefill T>1 接近 0/负数 | 序列/通道轴在 leap 图里和 torch 不一致 | 用最短 T>=2 探针；补与 `torch.transpose` 对等的 `leap.transpose` |
+| 单层 isolate ~0.98、融合前缀 ~0.58 | w8 块 RMS 漂移，下游吃未对齐 hidden | 记 RMS gain；拼接时 rescale 或拆段验收 |
+| 部署域重编注意力后融合更差、absmax 几乎不变 | 漏斗是残差内容而非该层 HBM≠float | same-feed 拆开；停该注意力配方 |
+| RMS 对齐后深层 cosine 仍掉、lerp 要 50% teacher 才回 0.84 | 标量胶水到顶 | 换融合段或量化，不叠 RMS |
+| isolate 高、host 仿真也高、HBM 在浅层就开始掉且 RMS 被放大 | 量化 RMSNorm 进了 convert | 三方 cosine；双路径 `preserve_precision`；不覆盖默认包 |
+| 单层去掉 attn ConstFQ / 加宽 V 或 Q 有局部收益 | 只改了最深注意力，融合图仍量化 LN | 必须重测融合 hidden；局部收益禁止当默认交付 |
+| packed cosine>0.98 但末 token argmax 仍错 | 近并列 logits；convert 的 lm_head 与仿真不一致 | 记 margin；仿真 last-argmax 对照；勿把 cosine 当 greedy |
+| 多核 3D 体积图 Recv misplaced，小图探针却能链上 | 不是单一维奇数/偶数 | 最小核图否证该假设后改切分轴或核数；全图成功前不算过 |
+| 同 HBM 时延一次 27 ms、独占后又 20 ms | 并发占核或频率未记录 | 独占加速器；JSON 记录 CPU/BPU 频率 |
 
 ## 7. 反模式与理由
 
@@ -108,6 +126,13 @@ description: >-
 | 单点校准 cosine 当验收 | 域错时仍可「看起来还行」 | 多指标 + held-out + 板端任务 |
 | host 与板端跨域对比当 bug | 假「板端神秘塌缩」 | 同 feed 诊断 |
 | 短序列 randn×scale pad | 校准 rms 掉到噪声域 | 真实 pad/滑窗；randn 仅显式开关 |
+| 只在 `build()` 放 fakequant、校准 `forward` 用裸 matmul | 导出图有量化节点但 absmax=0，HBM scale 成 eps | 校准路径与导出路径共用同一套量化算子 |
+| 只用 T=1 decode 验收含卷积的序列图 | T=1 看不见时间轴交换 | 最短 T>=2 与 T=1 对照 |
+| 把 isolate 层 cosine 当融合包质量 | RMS 漂移会在拼接处放大 | 融合前缀 + RMS 对照 |
+| 用部署域残差×RMS 连编注意力仍无提升 | 可能在放大已漂 hidden | same-feed 先否证该层 HBM |
+| 只跟 leap-float 比、不跑 host 量化仿真 | 会把 convert 病当成 PTQ 配方病 | 同一 feed 做 float / sim / HBM 三方 |
+| 把 isolate 加宽或 no-FQ 写进默认融合包 | 融合 hidden 可以完全不跟 | 双路径后缀；融合对照过了再考虑替换 |
+| 板端与压力任务抢同一 BPU 核后报时延 | 测到的是争用墙钟 | 独占核并记录频率 |
 | 评测集再当 calib 重编 | 零收益幻觉 | calib⊥held-out |
 | oracle/path-C 当开放听感 | 测不出 freerun 崩 | 分层门禁；产品锁已过基线 |
 | rms/能量回升当质量过关 | 首码仍可全错 | 盯 hidden cos / code0 / 任务指标 |
