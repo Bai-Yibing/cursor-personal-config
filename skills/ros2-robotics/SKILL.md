@@ -67,6 +67,10 @@ ssh <perception_host> 'source <project_root>/install/setup.bash && ros2 launch .
 - [ ] 建图：lost%/loops、节点 AABB、占用/已知比，不只 known% 或 `mapped_with_loop`（见 `visual-slam-mapping`）
 - [ ] 两套扫描匹配/2D SLAM 不要订同一 `/scan`；积帧激光用专用话题
 - [ ] 实时点云多为 BEST_EFFORT：下游默认 RELIABLE 会零订阅；对点云用 SensorDataQoS 再查 Hz
+- [ ] 并列实验路径配置分家、运行互斥；子节点 `drive_s done` 不等于 launch 已退出，先查残留再重开
+- [ ] 开源探索器订膨胀全局代价图，不要在生 `/map` 上自研前沿；动作接口的 resume 要去重；Nav2 与覆盖层禁止同时发 `/cmd_vel`
+- [ ] 点地图导航用当场过墙线后的冻结栅格；不知精确格点用 AMCL，禁止与 toolbox loc 同开；网页「已接单」必须对照位姿是否涨、闸 keepout、前视是否贴障；全局代价图起点若为 INSCRIBED 先查脚印/膨胀/活点云层
+- [ ] 墙上地标作唯一起点时，对板栈与建图 launch 互斥；无整板 PnP 不要写假 `map_start_pose`；建图预览看会话 `preview_2d.png`
 - [ ] 探索/覆盖：scan 缝隙与 unknown 通行策略（见 `nav-safety-collision`）
 - [ ] USB 相机带宽与回调（见 `camera-usb-rgbd`）
 

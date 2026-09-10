@@ -27,6 +27,8 @@
 | `author-cursor-config` | 如何撰写 skills/rules |
 | `remote-ssh-dev` | 远端 SSH 开发与取材 |
 | `field-validation-method` | O→H→V→C、验收指标 |
+| `edge-accel-eval` | 量化后板上质量/速度三轴深评与调查报告 |
+| `edge-accel-improve` | 评完后按层提速/提质（系统到训练） |
 | `visual-slam-mapping` / `semantic-occupancy-fusion` / `horizon-bpu-ptq` / `edge-bpu-runtime-iova` / `nav-safety-collision` / `camera-usb-rgbd` / `device-ipc-protocol` | 领域方法论 |
 | `ros2-robotics` | ROS2 远端工程 |
 | `daily-report` / `daily-knowledge-base` / `work-reporting-pipeline` | 日报与每日经验总结流水线 |

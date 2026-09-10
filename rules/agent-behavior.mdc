@@ -9,6 +9,7 @@ alwaysApply: true
 - 必须用命令验证；单次失败换路径继续，不轻易放弃。
 - 多加速器模型上板：遵循 `bpu-iova-runtime` / `edge-bpu-runtime-iova`（**兄弟段同预载**、禁止推理后晚加载 peer、禁止 del 后同 boot 重载）；**禁止擅自 reboot 板端**。
 - 量化编译：遵循 `bpu-quantize` / `horizon-bpu-ptq`（同 feed 对照、calib≠held-out、oracle≠freerun、先运行时契约再重编、按 TASK 隔离产物）。
+- **端侧质量/速度**：先 `edge-accel-eval` 深评写 md，再 `edge-accel-improve` 按层改（一次一个杠杆；速度/质量可双 SKU）。禁止把核数当 N 倍墙钟。
 - 遵循 user rules、skills、MCP（先读 schema）。
 - **含中文文档**：遵守 rule `utf8-chinese-docs` + skill `utf8-chinese-docs`（写完文件级校验；禁 PS GBK 写盘）。
 - 汇报取材：本机 terminals + 当日远端 git/日志。

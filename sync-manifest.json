@@ -18,7 +18,8 @@
     "cursor-config.mdc",
     "utf8-chinese-docs.mdc",
     "project-continuity.mdc",
-    "knowledge-lifecycle.mdc"
+    "knowledge-lifecycle.mdc",
+    "edge-accel-eval.mdc"
   ],
   "skills": [
     "daily-report",
@@ -38,6 +39,8 @@
     "device-ipc-protocol",
     "utf8-chinese-docs",
     "project-continuity",
-    "knowledge-lifecycle"
+    "knowledge-lifecycle",
+    "edge-accel-eval",
+    "edge-accel-improve"
   ]
 }

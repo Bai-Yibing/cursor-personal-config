@@ -58,7 +58,8 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 ## 5. 调试与安全
 
 - 代理/防火墙：HTTP 桥、DDS 需网络都通；跨机只 HTTP 时不依赖 ROS 域。
-- 不在对话/公开配置中硬编码密码；密钥用 ssh config。
+- 板上默认上网若走弱 WiFi：先关 STA 省电、去掉会超时的备选 DNS；不要用境外探针延迟当国内链路差的证据。射频很差只能靠近接入点或改有线，软件清不掉。
+- 不在对话/公开配置中硬编码密码；密钥用 ssh config。公开文档主机只用角色占位，不写地址。
 - 实机改动前：备份配置、记录改前参数；运动控制先确认环境安全。
 - 回滚：上一版二进制或 git tag。
 

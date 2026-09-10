@@ -49,7 +49,7 @@ description: >-
 |------|----------------|----------------|
 | 建图 | known% 高 | 闭环后拓扑一致、跟踪丢失率低、**位姿 KPI 与占据 KPI 分列** |
 | 语义融合 | 日志 cells / glass hits | 对齐网格后的 map diff、实体块状、VO 不退化 |
-| 量化 | 编译成功 / UI 进度 100% / 单点校准 cosine / oracle 路径好看 / rms 回升 / e2e_ok | 加速器门禁 + **同 feed** 板端对照 + **多指标**任务达标；AR 须 freerun/开放域过关；校准域对齐且 calib≠held-out |
+| 量化 | 编译成功 / UI 进度 100% / 单点校准 cosine / oracle 路径好看 / rms 回升 / e2e_ok | 加速器门禁 + **同 feed** 板端对照 + **多指标**任务达标；速度须分段墙钟与核数对照（见 `edge-accel-eval`）；AR 须 freerun/开放域过关；校准域对齐且 calib≠held-out |
 | 导航 | 覆盖率上升 | 无碰撞、unknown 保守通行 |
 | 相机 | 能枚举设备 | 回调 Hz 稳定、无零回调 |
 | 双目标定 | quality_ok、基线接近机械值 | 姿态多样 + RMS 达阈值；YAML 可否用于深度真值 |
@@ -106,6 +106,8 @@ run_meta:
 - 建图验收指标：`visual-slam-mapping`
 - 语义融合验收：`semantic-occupancy-fusion`
 - 边缘部署门禁：`horizon-bpu-ptq`
+- 板上质量/速度深评：`edge-accel-eval`
+- 评完按层改进：`edge-accel-improve`
 - 撞物时间线复盘：`nav-safety-collision`
 - 相机链路验证：`camera-usb-rgbd`
 - 协议 mock 验证：`device-ipc-protocol`
