@@ -33,6 +33,10 @@ ssh <perception_host> 'source <project_root>/install/setup.bash && ros2 launch .
 
 跨机无 ROS 域时只用 HTTP/明确接口；DDS 问题在**各端分别**查 `CYCLONEDDS_URI`、`RMW_IMPLEMENTATION`。
 
+### TogetheROS.Bot（tros.b）与 Humble
+
+RDK 预装栈常是 `/opt/tros/setup.bash` + hobot/NodeHub（官方 `rdk-tros-setup`）。本仓导航/SLAM 默认仍是 Humble overlay。**禁止**同一 shell 叠 source 两套；报 `package not found` 时先看当前 `AMENT_PREFIX_PATH` 是 tros 还是 Humble。WebSocket 可视化与模型加载失败分别交给官方 tros / model-deploy，不在本 skill 里编 hobot 节点菜谱。
+
 ### 多网卡 DDS 门禁
 
 跨机话题“能发现但收不到数据”时，先把问题拆成发布端、发现和数据面，不要直接改 QoS 或业务节点：
@@ -71,6 +75,7 @@ ssh <perception_host> 'source <project_root>/install/setup.bash && ros2 launch .
 - [ ] 开源探索器订膨胀全局代价图，不要在生 `/map` 上自研前沿；动作接口的 resume 要去重；Nav2 与覆盖层禁止同时发 `/cmd_vel`
 - [ ] 点地图导航用当场过墙线后的冻结栅格；不知精确格点用 AMCL，禁止与 toolbox loc 同开；网页「已接单」必须对照位姿是否涨、闸 keepout、前视是否贴障；全局代价图起点若为 INSCRIBED 先查脚印/膨胀/活点云层
 - [ ] 墙上地标作唯一起点时，对板栈与建图 launch 互斥；无整板 PnP 不要写假 `map_start_pose`；建图预览看会话 `preview_2d.png`
+- [ ] 开图前搜板：先看见整板再写残差原点；重定位目标是残差不是追齐坞门限；建图中途叠扫诊断不要往 mapping 注 `/initialpose`
 - [ ] 探索/覆盖：scan 缝隙与 unknown 通行策略（见 `nav-safety-collision`）
 - [ ] USB 相机带宽与回调（见 `camera-usb-rgbd`）
 
@@ -99,6 +104,7 @@ ssh <robot_host> 'pgrep -af bridge; curl -s localhost:<port>/health'
 | 边缘 NPU/PTQ | `horizon-bpu-ptq` |
 | 防撞与安全 | `nav-safety-collision` |
 | USB/RGBD 诊断 | `camera-usb-rgbd` |
+| 地瓜 tros 官方步骤 | `rdk-official-catalog` |
 | 设备 IPC | `device-ipc-protocol` |
 | 现场验证方法 | `field-validation-method` |
 

@@ -32,10 +32,15 @@ description: >-
 - **段间 RMS 胶水有上限**：host 标量 gain 不能把已漂 hidden 拉回 teacher。需要的恢复量要用 teacher 混合（lerp）标定；到不了就换融合图或改量化，而不是再叠一层 RMS。
 - **HBM 对 float 断崖要先跟 host 量化仿真三方对照**：若仿真贴 float、HBM 贴仿真失败侧，漏斗在 convert，不在校准 `forward`。量化 RMSNorm 默认可能系统性改 RMS；`preserve_precision` 双路径包（不覆盖默认交付）可把浅层/融合 hidden 拉回仿真。这只证明 convert 契约，不等于 greedy/板上生成。
 - **isolate 注意力加宽或去掉 matmul ConstFQ 的收益不能写入融合包**：单层 stitch 上升时，整网 hidden 仍可能不变或更差。对照必须同时跑融合 hidden，禁止用最深一层的局部配方覆盖默认交付。
+- **Prefill `T` 与 `cache_len` 是两根轴**：`T`/`seq_len` 是一次 `run` 吃进的 prompt 块长，主要改 TTFT 块数；`cache_len` 是静态 KV/mask 宽，Prefill 与 Decode 必须同宽，主要改多轮/长生成预算。不要用加大 cache 冒充「Prefill 已经顶满」，也不要把厂商融合 YAML 的超长 cache 抄到另一套管线的第一刀 leap convert。
 - **cache / Prefill 窗必须盖住产品 token 预算**：视觉 token 数（如一张图数百）大于语言 `cache_len` 或 Prefill `T` 时，该语言包不能当完整看图路径。短窗包只做文本烟测。
 - **超长无 past Prefill convert 崩溃不要同图重试**：导出 `.bc` 成功仍可能在 convert SIGSEGV。先腰斩序列做探针；过了再考虑短 chunk + KV past 覆盖产品 token，而不是一次顶满。完整质量另开门禁。
 - **腰斩 T 过了不能跨尺度抄**：小模型某 T 能 convert，更大 hidden/更深的同 T 仍可能 SIGSEGV。每个尺度自己探针；失败立刻改 chunk+past，不要假定「兄弟模型的成功 T」可复用。
-- **两个大 leap convert 不要并行**：同机双任务会抢 CPU 或被中途杀掉。封 CPU 集串行，一步失败仍可继续下一步。串行函数里 `set -e` 下不要 `return` 非零，否则整条队列停掉。
+- **两个大 leap convert 不要并行**：同机双任务会抢 CPU 或被中途杀掉。默认 `flock` 串行；一步失败仍可继续下一步。串行函数里 `set -e` 下不要 `return` 非零，否则整条队列停掉。用户确认跳锁时必须绑互斥 CPU 集；本轮已有双方 `link_ok` 的证据，仍禁止无限并行。`compile_hbo` 进度条 100% 不等于 `.hbo`/`.hbm` 落盘。
+- **离散码本 / FSQ 的 Cast 必须盖住码值上界**：int8 饱和成常数后 HMCT cosine 仍可很高。门是 exact match 或非饱和直方图，不是 id cosine。同一躯干只钉 Cast/求和节点到 int16，不覆盖旧包。
+- **静态最大长 pad 不等于有效序列长**：把短内容当满窗 `token_len` 喂注意力，听感会掉。用真实长度或显式零填充激活；结构 pad 不是内容。
+- **词表 Gather 超过方言 index 上限会 HYBRID**：先读 `hbir.index` 容量。超了就切片或主机预切下标，不要整表硬编。
+- **先打厂商官方格，再扫 chunk×cache 梯子**：对照 YAML/样例包的 chunk、cache、`core_num` 先编齐套（视觉/头/Prefill/Decode），合法格全入队但容器内串行。梯子空转不能替代官方 shape。`core_num=N` 不是 N 倍墙钟；多核 qemu 挂死不当芯片 FPS。
 - **齐套 stamp 不等于上板**：编译 `link_ok` 后打 stamp，带 IO 契约和 sha，默认不挂 latest。语言 HBM 体积随 hidden/层数涨，解压前先核磁盘。同包里的短窗 extra 不得与产品 path 同会话加载。
 - **主机逐步 Decode qemu 不能当全链路看图门禁**：单步可到数分钟；全 prompt 展开不可作为本机验收。质量放到板上或更快 runtime；不要把小模型 qemu 墙钟抄到更大 hidden。
 - **compile_hbo 到 100% 仍可能 LLVM vgpr**：大二维 VPU 注意力（视觉 784×784 或长 Prefill）会在链接前崩。减层、关 enable_vpu 若仍留下大 attn 就不要同图重试；先缩 grid / 缩 T。
@@ -56,6 +61,22 @@ description: >-
 - **同 feed 才可比**：主机 verifier / 板端 / float 对照必须同一预处理、同一输入张量域；跨域数字只能当线索。
 - **校准张量域必须贴导出/板上喂数**：0–1 letterbox 的图用 0–255 校准，大模型分类可被压死；校准 npy 上的高 max_prob 可以是错类虚荣。域对齐后再谈 FPN/头。
 - **自回归 tok/s 由 Decode T=1 决定**：Prefill 窗（T=8 vs T=64）只改 TTFT。不要为提 tok/s 把 greedy Decode 编成 T>1，那是另一张图。
+- **AR decode 运行时必须与 Decode 图同契约**：产品逐步生成是 T=1。把 Prefill 宽窗（T=64）当 decode 填槽、或相对位而非绝对 RoPE，可出现 Prefill same-feed≈1 而 teacher-force 第一步 cosine≈0.5。先修调度再怀疑量化。
+- **多输入身份塌缩先查 convert 动态量化与 `llm_convert`**：同 feed 多图在 export `.bc` 仍可分，经 `dynamic_quant` 或 `llm_convert`（含 softmax skip/vae/vpu）后两两 cosine→0.99 且 rms 齐，漏斗在 convert。`maxabs>1e-4` 可与塌缩并存，live 门是图像间 cosine 不高。双路径 nodq（不覆盖默认）；`opt=0` 救不了。塌缩图常同时变成「快常量」墙钟，更快≠可用。
+- **厂商 runtime 刷屏可主导墙钟且不改 greedy ids**：日志级环境变量可能无效。评测可静默 stdio；必须对照同一 token 序列。刷屏墙钟不得当芯片时延。
+- **SoC `core_num` 上界是编译器硬范围**：某 march 报 `must be in range 1 to 1` 时升核 remap 会被拒绝，不是绑核写错。先读编译器范围再谈调度。
+- **主机 qemu last-real 首词不能否证板端 greedy**：qemu 与 device runtime 可抽不同词；板上以齐套 `run` 为准。
+- **语音 float 头 ≠ 全 BPU 产品**：logits 在 CPU 的 skip 包只证听感桥，不证加速器门。`force_n`/oracle Whisper 过 ≠ RAS freerun。主机 qemu 挂在 Model Input Info ≠ cosine/配方失败。
+- **教师 greedy 吸同一循环 id 时，不要写成量化独有**：float greedy 也会塌；开放文本必须对照教师同款采样（如 RAS）。量化体 RAS 在相近 topk 上抽偏是 margin，不是 packing、不是缺 skip 重编。
+- **缺 prompt 尾与峰塌是两洞**：短窗只装前缀会复读提示音；float 补 teacher-force 尾后 RAS 可逐位 native。量化 freerun 仍塌时先停采样超参，再动配方。
+- **短窗切界失败不能写成估计器不能量化**：同一 Euler 在短窗多块失败、加长一窗过门，是窗长/重叠契约。先对齐产品 mel 长，再谈量化位宽。
+- **图上拆 Softmax（Exp 等）不等于速度 SKU**：板上 `run` 仍可与 nodq 同量级；随图变只证明 live，不证明更快。
+- **厂商官方 Agent Skills 是命令溯源，不是任务门**：D-Robotics `rdk-skills` / `oe-skills-s` / `oe-skills-x5` 可查 YAML、`hb_compile`/`hb_mapper`、`hrt_model_exec`。冲突时现场门禁优先。X=`.bin`，S=`.hbm`。标准 OE 包 ≠ OE-LLM 包。对照 `rdk-official-catalog`。
+- **无证据不升混精度**：官方 router 亦禁止在全 int8 未证伪前主动升 int16/fp16；升位宽还须再过 CPU=0。HMCT cosine≥0.99 只是工具链探针。
+- **QAT/导出一致性按阶段切**：`qat.pt` → `export.pt`/`pre_export` → `qat.bc` → `quantized.bc` → HBM/板端。单帧数值差不能跳阶段归因；须稳定 badcase。
+- **编译 YAML 须确认后再 `hb_compile`**：官方 HBDK skill 强制；本仓另加双路径、不覆盖过门包。
+- **官方性能工具分列**：`hrt_model_exec perf`、`hb_analyzer`、Perfetto `.pftrace`、`hrt_ucp_monitor`/`hrut_ddr` 可采集。高频监控不要走 gRPC `hbm_infer`。其 FPS 仍须按 `edge-accel-eval` 标独占与分段。
+- **同 feed HBM cosine ≠ freerun 内容门**：Prefill logits≈1 只证数值契约。语音听感用 Whisper/CER；native/oracle token 过门不能代替 leap freerun。
 - **语音 LLM 先做 host w8 前缀仿真再 convert**：depth-1 hidden 已塌则漏斗在配方/注意力 V，不要整网重编去抢另一路 Leap convert。另一套同架构模型仿真仍可贴 float。
 - **产品关 thinking 时板上必须禁采样 think 块**：空 `<think></think>` 模板会把看图句打成闲聊/套话。链路通 ≠ 内容贴教师。
 - **大 Prefill load 前释放其它加速器/ION 占主**：常驻压缩/视觉 daemon 可让齐套 load `RESOURCE_EXHAUSTED`；停占主后再 load，会话结束 Release。
@@ -162,10 +183,27 @@ description: >-
 | 板上 VL 出完整中文但三图同一套话 | 语言 last-real 或 think 采样 | 禁 think 采样；再比 last-real 与 float 教师 |
 | 语音 LLM convert 前 host w8 depth-1 cosine≈0.25 | 配方/V 路径，不是缺 convert | 停整网重编；先改可导出 V/cache |
 | Prefill 849MiB load RESOURCE_EXHAUSTED | 其它进程占 ION/BPU | 停占主 daemon 后再齐套 load |
+| Prefill same-feed≈1、decode teacher-force≈0.5 | 用 Prefill T 窗填 decode 槽或相对 RoPE | 改 T=1 + 绝对位置；对照教师逐步 logits |
+| 多图 export 可分、mlir/HBM 两两 cosine≈1 | `dynamic_quant`/`llm_convert` 塌身份 | 双路径 nodq；勿只降 `opt` |
+| hop maxabs>1e-4 但三图 cosine≈0.99、墙钟「变快」 | 身份塌成常量图；maxabs 虚荣 | live 门用图像间 cosine；任务 greedy 随图变 |
+| Decode/视觉墙钟被日志刷屏抬高、token 不变 | 主机 stdio/spdlog 税 | 静默 fd1/2 对照同 ids；勿只改日志环境变量 |
+| 升核 remap 报 `core_num` range 1 to 1 | march 编译器硬上限 | 停升核；速度另开质量门 SKU |
+| 主机 qemu 抽「这张」、板上 greedy「三只」 | qemu ≠ device runtime | 以板端齐套 greedy 为准 |
+| skip LLM Cpu=0 未过、float 头 CER=0 | float `lm_head` 不是全 BPU | 独立头图驻留后再开听感 |
+| oracle/`force_n` Whisper=0、RAS freerun 糊 | 采样轨迹离 native | 分层；勿为听感改量化或升核 |
+| float greedy 与量化 greedy 同吸循环 id | 教师解码器本身不用 greedy | 对照教师 RAS；勿为 greedy 循环重编 skip |
+| 短窗两块 CER 高、加长一窗过门 | 切界/重叠，不是图不能量化 | 先改窗长对齐产品 mel |
+| 短 Prefill 复读提示音、补 tail 后 float RAS 逐位 native | packing 洞已闭 | 量化 freerun 另开漏斗，勿混成一刀 |
+| nash qemu 挂 Model Input Info、板上 finite | 主机 qemu 不支撑该图 | 板上 `run`；勿当 HBM 损坏重推 |
+| LLM HBM cosine 过、leap freerun ASR 乱 | 采样/缓存/位置契约或配方残差 | 听感桥先 native/oracle token；再换 leap freerun |
 | 板上 load 过、短句答成错误数字/早停 | Prefill 最后一格 logits 已偏 | 先打 Prefill top-k；再 host 三方；勿先改 merge |
 | 两个大图 convert 同时跑，一个无 HBM | CPU/内存争用或会话被切 | 串行 + CPUSET；一步失败继续下一步 |
 | 语言包能 load，看图 prompt 直接越界 | `cache_len`/`chunk` < 视觉 token+模板 | 先数 token 再选窗；短窗包不打 VL 交付标签 |
 | 同 HBM 时延一次 27 ms、独占后又 20 ms | 并发占核或频率未记录 | 独占加速器；JSON 记录 CPU/BPU 频率 |
+| 官方 cosine≥0.99 已过、看图/ASR 仍废 | 工具链探针≠任务 | 同 feed 任务指标；停同域刷余弦 |
+| 按官方 nash-p 全链路改成 body fp16 | 驻留/已过门 w8 被覆盖 | 双路径；用户确认；不覆盖交付 |
+| QAT 训练好、HBM 掉点就改校准 | 漏斗可能在 export/convert | 按 qat.pt→bc→HBM 分段 |
+| 把 OE-LLM 组件装进标准 OE venv | 版本踩踏 | 分包检测；本仓按 TASK `.venv` |
 
 ## 7. 反模式与理由
 
@@ -190,7 +228,21 @@ description: >-
 | 用整窗 KV cosine 均值判 KV 废 | pad 格稀释 | last-real 格 |
 | qemu 喂 NV12 Y/UV 当相机包精度门 | 与 pyramid 板端不是同一契约 | RGB-fm 同 feed；NV12 上板 |
 | 用 Prefill T=64 宣称 tok/s 提升 | 窗只改 TTFT | 分段报 Decode T=1 `run` 墙钟 |
+| 把加大 `cache_len` 写成 Prefill 已顶满 | 两根轴 | TTFT 看 T 块数；多轮看同宽 cache |
+| 先扫 chunk×cache 梯子再打官方 shape | 空转、占 convert | 官方格齐套后再往上或往下 |
+| 码本 id cosine 高就当量化过 | int8 可全饱和仍高余弦 | exact match / 直方图；Cast 盖上界 |
+| 把静态 max-len pad 当有效 `token_len` | 注意力吃进假长度 | 真实长度或零填充激活 |
+| 整表 Gather 超 index 上限仍硬编 | 必 HYBRID 或失败 | 切片或主机预切 |
+| 进度条 100% 当 `link_ok` | 文件可能尚未写出 | 等 `.hbo`/`.hbm` 与 sha |
+| 用 Prefill 宽窗填 decode 槽做 freerun | 位置/注意力契约错，cosine 虚荣 | T=1 + 绝对 RoPE；对照教师逐步 |
 | 有限值 WAV / CER 未过就宣称 TTS 可用 | 链路通 ≠ 听感 | Whisper 对目标句 + 分层 oracle/freerun |
+| 只降 `opt` 救多图身份塌缩 | 漏斗在 dynamic_quant / `llm_convert` | 双路径 nodq；hop 用图像间 cosine |
+| 用 maxabs>eps 当 hop live | 常量图仍可有差 | cosine 门 + 任务随输入变 |
+| 把刷屏墙钟当芯片 tok/s | 日志 I/O 税 | 静默 stdio；对照 greedy ids |
+| 某 SoC 视觉升核救 nodq 慢 | 编译器核数范围可能是 1 | 先读 range；失败停 remap |
+| 用主机 qemu 首词否证板上 caption | runtime 不同 | 板上 greedy 才是内容门 |
+| 把 float 头 skip 包当全 BPU TTS | 头仍在 CPU | 驻留独立 `lm_head` |
+| qemu 挂 Input Info 就重编 yaml | load/I/O 可能已过 | 先板上 device |
 | 校准 npy 高 max_prob 当检测过关 | 可能是错域错类 | 与 float ONNX 同预处理对照类名 |
 | 融合 mixer 崩就先改校准/去 FQ | sim 已贴 float 时漏斗在 convert 图 | 先拆 mixer 子图再改 repeat 原语 |
 | 多核包主机 qemu 挂死就重编 yaml | load 与 I/O 可能已过 | 先板上 device；勿少核喂 |
@@ -213,6 +265,7 @@ description: >-
 | 照搬他项目拆分段当公理 | 边界可能错 | 从本仓库在线调用图推导 |
 | 跨 task 拷贝 HBM/ONNX/calib | 污染与不可复现 | 本 task 自建；只引公版源码/权重 |
 | 根目录或 task 间软链共享 venv | 升级踩踏、路径语义乱 | 每 task 独立 `.venv` + `--copies` |
+| 整仓安装地瓜 90+ skill 当本仓公理 | 与 IOVA/任务门冲突且抢上下文 | `rdk-official-catalog` 对照；按需打开官方原文 |
 
 ## 8. 交付/复盘检查清单
 
@@ -226,7 +279,8 @@ description: >-
 - [ ] AR/语音：分层门禁与产品默认包（含 rollback）已写清
 - [ ] 输入契约（dtype/layout/`input_source`）与文档一致
 - [ ] 废版备份与 rollback；未覆盖最优基线
-- [ ] 板端：加速器时间 + 墙钟 + 任务多指标
+- [ ] 板端：加速器时间 + 墙钟 + 任务多指标；刷屏对照已静默且 ids 不变
+- [ ] hop：图像间 cosine 门，而非仅 maxabs
 - [ ] 汇报标注 `<ptq_host>`、包路径占位符、时间
 
 ## 8.1 存储布局（边缘 PTQ）
@@ -270,5 +324,6 @@ board≈float → 停同域 PTQ，改别的杠杆
 - 板上质量/速度深评与报告：`edge-accel-eval`
 - 评完按层提速/提质：`edge-accel-improve`
 - 多模型加载 / IOVA：`edge-bpu-runtime-iova`
+- 地瓜官方 skill 对照：`rdk-official-catalog`
 - 语义检测上板：`semantic-occupancy-fusion`
 - 远端执行与取材：`remote-ssh-dev`

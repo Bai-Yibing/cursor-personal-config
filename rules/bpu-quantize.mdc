@@ -10,7 +10,11 @@ alwaysApply: false
 - 交付：产物落盘 + 成功日志；进度 UI 不算完成；中断保 `.bc` 可续编。HBM 不是训练权重容器，客户参数用编译前的 `.pt`/ONNX。
 - 能加载 ≠ 可上线：profiler + 板端延迟与任务**多指标**；禁止只盯单点校准 cosine。
 - **校准卫生**：域对齐部署；**calib ∩ held-out = ∅**；禁止默认 randn pad；host/board/float **同 feed** 才可比。
-- **分层验收**：oracle/条件路径 ≠ freerun/开放域质量；联调 e2e_ok ≠ 语义正确；board≈float 时停同域 PTQ。
+- **分层验收**：oracle/条件路径 ≠ freerun/开放域质量；联调 e2e_ok ≠ 语义正确；board≈float 时停同域 PTQ。`force_n` Whisper 过 ≠ RAS 采样过。
+- **hop live**：多图两两 cosine 不高才算活输入；`maxabs>eps` 可与身份塌缩并存。`llm_convert` 与 `dynamic_quant` 同查。
+- **墙钟**：厂商 runtime 刷屏可主导主机税；静默 stdio 须对照 greedy ids。qemu last-real 首词不能否证板端 greedy。
+- **核数**：`core_num` 上界以编译器 march 范围为准；报 1 to 1 时禁止升核 remap。float 头 ≠ 全 BPU。
+- **厂商工具链**：X 系列 `.bin` / S 系列 `.hbm`。`hrt_model_exec` / `hb_analyzer` / Perfetto 只当速度采集器。HMCT cosine≥0.99 与官方混精度自动回退是探针，不是任务门。无精度不达标证据禁止主动升 int16/fp16。YAML 须确认后再编译。官方全链路默认（含 nash-p body fp16）不得覆盖已过门交付。对照 `rdk-official-catalog`。
 - **先契约后重编**：mask/dtype/prefill/`input_source` 与导出一致后再判量化；勿把契约病当 PTQ 病盲编。
 - 整图不支持则先改图再 PTQ；静态边界从**在线调用图**推导；静态图与 LLM runtime 分离；一长编译一容器/GPU。
 - 新位宽/配方须双路径门禁过才替默认包；失败立即 rollback。

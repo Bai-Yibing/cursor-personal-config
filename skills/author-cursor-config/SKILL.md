@@ -64,6 +64,8 @@ description: >-
 
 自检：**换一个项目/硬件栈，这份 skill 还能指导行动吗？**
 
+厂商公开仓（如 D-Robotics Agent Skills，多为 CC-BY-4.0）只作**命令溯源**：摘要原则、冲突裁决、链接；禁止整份 SKILL.md 粘进本仓，禁止把板端 IP/`sshpass`、全链路默认配方写成个人公理。对照 skill `rdk-official-catalog`。
+
 ## 6. Frontmatter
 
 ### Skill
@@ -145,6 +147,7 @@ edit USERPROFILE\.cursor\rules|skills
 | 用控制台判中文 | 代码页误导 | conda 写入 + 文件验证 |
 | 忘记 manifest | 项目安装不到 | 增删必改 |
 | alwaysApply 塞长文 | 抢上下文 | 长内容进 skill |
+| 整仓镜像厂商 90+ skill | 抢上下文且与现场门打架 | 目录对照 + 按需打开官方原文 |
 
 ## 12. 相关
 

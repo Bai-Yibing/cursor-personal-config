@@ -21,6 +21,9 @@ description: >-
 - **虚荣 ≠ 验收**：编译通过、文件存在、覆盖率上升不等于任务达标。
 - **时间对齐**：多源证据（日志、视频、传感器、地图）必须同一时间窗口解读。
 - **风险对称**：安全相关验证先短冒烟、可回滚，再长跑。
+- **观察 ≠ 动作**：只读快照不能夹带 drop_caches/停服务；动作须单独假设与确认。
+- **不编造缺失信号**：官方板端脚本把读不到的项标 `null`/`false`；本仓同样标待验证，不靠文档理论值填表。
+- **厂商工具输出 ≠ 任务验收**：cosine、`hrt_model_exec` FPS、编译器 latency 是线索，验收仍是 held-out 任务指标与独占分段墙钟。
 
 ## 3. O→H→V→C 决策树
 
@@ -76,6 +79,7 @@ description: >-
 | 长跑前不做冒烟 | 代价高、难回滚 | 先短距离、低速、可急停场景 |
 | 单点校准余弦当验收 | 域错时仍可能「好看」 | 多指标 + held-out + 板端任务 |
 | oracle/e2e_ok 当产品质量 | 测不出开放域/语义崩 | 分层门禁；虚荣与验收分列 |
+| 官方 skill 默认配方当现场公理 | 全链路示例可与驻留/IOVA 冲突 | `rdk-official-catalog` 裁决表 |
 
 ## 8. session_meta / run_meta 模板
 
@@ -108,7 +112,9 @@ run_meta:
 - 边缘部署门禁：`horizon-bpu-ptq`
 - 板上质量/速度深评：`edge-accel-eval`
 - 评完按层改进：`edge-accel-improve`
+- 长跑/切内存/板端体验：`edge-board-system-test`
 - 撞物时间线复盘：`nav-safety-collision`
 - 相机链路验证：`camera-usb-rgbd`
 - 协议 mock 验证：`device-ipc-protocol`
 - 远端取证：`remote-ssh-dev`
+- 地瓜官方对照：`rdk-official-catalog`

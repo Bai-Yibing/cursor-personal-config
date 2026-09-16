@@ -37,6 +37,7 @@ description: >-
 6. **冷启写窄但仍要果断**：双序 dual 全死、跨管线所需方向未验证且评测需要、或与常驻 daemon 死锁映射 → 请用户冷启。Agent **禁止擅自 reboot**。
 7. **poison 锁是硬停**：bypass/force 只允许探针/诊断，**禁止**当作评测默认。
 8. 加载成功 ≠ 任务达标（精度/时延另报）。
+9. **官方 UCP「多模型 session / 板侧透传」不能否证 IOVA 粘滞**。文档能链式调用 ≠ 两存活进程可并发握包。ION/CMA 以板上活测为准（`rdk-memory-audit`），部署前预检堆大小。对照 `rdk-official-catalog`。
 
 ## 3. 架构 / 选型决策树
 
@@ -86,9 +87,9 @@ description: >-
 
 ### 4.3 跨管线 handoff
 
-1. 查会话锁：`poisoned` → **停**；`fresh_boot` / boot 标识变化 → 当新表。
+1. 查会话锁：`poisoned` → **停**；`fresh_boot` / boot 标识变化 → 当新表。旧 boot 的 `last_load_role` 不能单独否证新表。
 2. 查证据表：目标方向是否已实锤。未写进契约的方向 = 未验证。
-3. 评测默认：**一 boot 一主管线**（先跑今天要验收的那条）。
+3. 评测默认：**一 boot 一主管线**（先跑今天要验收的那条）。本 boot 只要产品栈已经 load 过评测同核的 leap dual（即使随后 Release），评测 dual 常不可用；冷启后到评测 dual 之前禁止产品 TTS/识别占核。
 4. 若必须同 boot 换向：先单模探针，再目标管线 dual 探针；任一失败 → 请用户冷启，勿连环 bypass。
 5. Agent 文案禁止写「ASR↔TTS 双向都不用 reboot」这类对称结论。
 
@@ -140,12 +141,14 @@ description: >-
 | 永不 Release / 绑到 reboot | 叠映射→粘滞 | 会话结束必 Release |
 | 死绑单一产品加载序 | 粘滞后可能恰好是死序 | 双序探针 + 锁定存活序 |
 | 把单向 handoff 写成双向公理 | 反向未证却排进同 boot | 方向分列证据；一 boot 一管线 |
+| 产品栈本 boot 已 load 仍上评测 dual | Release ≠ 映射干净 | 冷启后评测窗口禁止产品占核 |
 | 推理后晚载 peer | 主毒化路径 | 开场齐套 |
 | corrupted → 重推模型包 | 掩盖映射问题 | 校验 + 序/释放/冷启 |
 | poison 后 force/bypass 赶评测 | 污染结论、加深粘滞 | 停测；请用户冷启 |
 | 「顺便」同 boot 跑反向管线 | 高概率第二段 IOVA | 另一次冷启专跑 |
 | Agent 代 reboot | 藏证据 | 请用户重启 |
 | 并发 dual | IOVA | 互斥会话 |
+| 按官方多模型 API 开第二进程 | 粘滞/假 corrupted | 同会话齐套或换 boot |
 
 ## 8. 交付清单
 
@@ -159,4 +162,5 @@ description: >-
 ## 9. 相关
 
 - `horizon-bpu-ptq` / `field-validation-method` / `remote-ssh-dev`
+- `rdk-official-catalog`
 - `author-cursor-config` / `cursor-config-sync`

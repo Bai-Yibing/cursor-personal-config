@@ -29,9 +29,12 @@
 | `field-validation-method` | O→H→V→C、验收指标 |
 | `edge-accel-eval` | 量化后板上质量/速度三轴深评与调查报告 |
 | `edge-accel-improve` | 评完后按层提速/提质（系统到训练） |
+| `edge-board-system-test` | 长跑压测、DRAM/ION/RSS 分账、切分决策、板端演示 Web |
+| `rdk-official-catalog` | 地瓜官方 Agent Skills 目录对照；冲突时现场门禁优先 |
 | `visual-slam-mapping` / `semantic-occupancy-fusion` / `horizon-bpu-ptq` / `edge-bpu-runtime-iova` / `nav-safety-collision` / `camera-usb-rgbd` / `device-ipc-protocol` | 领域方法论 |
 | `ros2-robotics` | ROS2 远端工程 |
 | `daily-report` / `daily-knowledge-base` / `work-reporting-pipeline` | 日报与每日经验总结流水线 |
+| `industry-watch` | 手动早报：前一日官方/高认可开源情报（镜头门控，不是工作日报） |
 | `project-continuity` | 跨会话项目状态、决策、故障证据与交接 |
 | `knowledge-lifecycle` | 多项目归档、经验提炼和个人配置发布安装闭环 |
 

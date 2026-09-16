@@ -19,7 +19,8 @@
     "utf8-chinese-docs.mdc",
     "project-continuity.mdc",
     "knowledge-lifecycle.mdc",
-    "edge-accel-eval.mdc"
+    "edge-accel-eval.mdc",
+    "edge-board-system-test.mdc"
   ],
   "skills": [
     "daily-report",
@@ -41,6 +42,9 @@
     "project-continuity",
     "knowledge-lifecycle",
     "edge-accel-eval",
-    "edge-accel-improve"
+    "edge-accel-improve",
+    "rdk-official-catalog",
+    "edge-board-system-test",
+    "industry-watch"
   ]
 }

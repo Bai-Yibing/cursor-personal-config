@@ -18,3 +18,4 @@ alwaysApply: true
 7. 未交调查 md 不得宣称多核无效、已吃满、或帧率达标。
 8. **评完先选层再改**：runtime/系统 → 调度 → 图/算子 → 算法 → 结构 → 训练/量化；一次一个主杠杆；速度包与质量包可分离。
 9. 不为提速改量化配方或引入 CPU/hybrid。
+10. 官方 `hrt_model_exec` / `hb_analyzer` / Perfetto 是采集器，不是芯片 FPS 公理；见 `rdk-official-catalog`。

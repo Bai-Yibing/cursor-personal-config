@@ -79,7 +79,7 @@ eval 主因是什么？
 | 层 | 做法 | 何时 | 风险 |
 |----|------|------|------|
 | L0 | 原始帧/共享缓冲；后处理异步；控制面与数据面分离 | 服务路径明显慢于纯推理 | 不同步、掉帧需单独测 |
-| L1 | 常驻权重；关跨帧泄漏的缓存；大中间量只提交一次；绑核=编译核；独占频率 | eval 已证提交/泄漏 | 常驻吃堆；关缓存可能 +数个百分点拷贝 |
+| L1 | 常驻权重；关跨帧泄漏的缓存；大中间量只提交一次；绑核=编译核；独占频率；必要时用 `hb_analyzer`/Perfetto 看空隙再动提交 | eval 已证提交/泄漏 | 常驻吃堆；关缓存可能 +数个百分点拷贝 |
 | L2 | 只给算力墙段 `core_num>1`；切分轴要能链上且量化不崩 | 段表证明该段算力墙 | Recv/同步；轻段升核浪费 ION |
 | L3 | 算子融合；Scatter/Resize/Transpose 改写驻加速器；tile pack 进 batch | 图内 sync 多或 CPU fallback | 必须 float 等价（cosine/maxabs 门）再编 |
 | L4 | 降迭代、ROI、上一帧作初值、降输入分辨率、级联小模型 | 迭代线性或分辨率平方涨 | **质量门**；几何任务先算 mm/px 预算 |
@@ -183,4 +183,5 @@ eval 主因是什么？
 - 多包加载：`edge-bpu-runtime-iova`
 - 实验环：`field-validation-method`
 - 相机路径：`camera-usb-rgbd`
+- 官方采集器对照：`rdk-official-catalog`
 - 报告与状态：`project-continuity` / `utf8-chinese-docs`

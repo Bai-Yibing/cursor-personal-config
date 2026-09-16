@@ -69,7 +69,8 @@ Roofline（单核是否「吃满」）：
    - 迭代次数 1/2/N 是否线性（线性 → 迭代体是稳杠杆）
    - 编译器估计 vs 板端该段 `run()`（差距大 → 提交/DDR 税）
    - 单核全集 vs 只重段多核 vs 全段多核
-5. **硬件快照**：系统 DRAM（通常不是瓶颈）、ION/carveout/CMA 余量、各核 busy/ratio 峰值与均值、温度；进程 RSS。
+   - **官方采集器（可选，分列）**：`hrt_model_exec perf`（thread/core 扫描）、`hb_analyzer`（带宽/利用率）、Perfetto `.pftrace`（调度空隙）、`hrt_ucp_monitor`/`hrut_ddr`（推理期资源）。高频监控不要走 gRPC `hbm_infer`。这些输出是线索，**不能**单独宣称芯片 FPS；仍须独占频率 + 分段 `run()` + 任务质量表。工具路径见 `rdk-official-catalog`。
+5. **硬件快照**：活测 DRAM Available、进程 RSS、**持包那块 ION 堆**、各核 busy/ratio、温度。禁止把 DRAM 标成「通常不是瓶颈」，禁止 DRAM+ION 相加。长跑、切分、演示 Web 见 `edge-board-system-test`。官方 `rdk-diagnostic` / `rdk-memory-audit` 只读脚本可用。
 6. **软件契约**：`input_source`、Python 是否每 `run()` 全量 DDR 提交、LRU 是否跨帧吞堆、绑定核是否大于编译核。
 7. **SKU 结论**：速度默认包可以是「只重段多核」；全段多核若墙钟无差且堆更肥，不要当速度基线。
 8. **落盘完整 md**（模板见 §8）。改进计划按 `edge-accel-improve` 只选一层杠杆。
@@ -84,6 +85,7 @@ Roofline（单核是否「吃满」）：
 | sysfs 平均 ratio 低 | 先分段峰值；再判带宽墙 vs 空窗 |
 | 服务 FPS（含 HTTP/JPEG） | 另列「纯推理 e2e」与「服务 e2e」 |
 | 校准节点 cosine | 任务指标（EPE/CER/mAP 等）+ held-out |
+| `hrt_model_exec` 峰值 FPS / 官方 cosine 0.99 | 独占分段 `run()` + held-out 任务 |
 | 一次 mix 切全多核几乎没变 | 查重段是否已经是多核（对照选错） |
 
 通过：报告同时有质量表、分段速度表、三轴归因、下一步单一杠杆。缺表不得宣称「多核没用」或「已经吃满」。
@@ -111,6 +113,7 @@ Roofline（单核是否「吃满」）：
 | 为提速改量化配方 | 打回 CPU/毁精度 | 配方冻结；动核数/图/iters/runtime |
 | 不写报告只口播 | 下轮重复测、对照丢失 | §8 调查 md |
 | qemu 多核挂死当板慢 | 主机仿真不是板端墙钟 | 板上 device |
+| 官方 perf 开 LRU 当默认 | 跨帧池可吞 ION | 对照开关；记 heap |
 
 ## 8. 交付：完整调查报告模板
 
@@ -154,8 +157,10 @@ Roofline（单核是否「吃满」）：
 
 - `horizon-bpu-ptq` / `bpu-quantize`：编译与精度门禁
 - `edge-accel-improve`：评完如何按层提速/提质
+- `edge-board-system-test`：长跑 hwmon、内存切分、板端体验面
 - `edge-bpu-runtime-iova` / `bpu-iova-runtime`：多包加载
 - `field-validation-method`：O-H-V-C
 - `remote-ssh-dev`：板上执行与取材
+- `rdk-official-catalog`：地瓜 `hrt_model_exec` / analyzer / Perfetto 对照
 - `project-continuity`：调查与状态文件
 - `privacy-github` / `utf8-chinese-docs`

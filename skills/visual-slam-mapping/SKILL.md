@@ -119,6 +119,9 @@ description: >-
 | 冻结图上不知精确格点仍用小窗 toolbox loc | 搜索窗只有几十厘米，初值不对则永不锁 | map_server+AMCL；与 toolbox loc 互斥 |
 | 把当次机位写成地图原点 | 每次开机坐标系漂，地标对不上 | 固定标准坞为唯一原点；对板只记残差再设 `map_start_pose` |
 | 弱图上自研占用穷举当 initialpose | 少束高分可贴错墙角 | 网页/RViz 粗点 + AMCL；叠扫对墙再发目标 |
+| 把少束 `frac≈1` 当重定位成功 | 几根射线碰巧全中占用就假满分 | 同时看命中束数与占用命中；建图节点不定 `/initialpose` |
+| 无地标时硬追坞门限才肯开图 | 对不齐就空转，浪费场测 | 先搜到整板再写残差；`ALIGN_FAIL` 有 PnP 即可开图 |
+| 对板栈无前距却当探索前进 | 闸盒里空转找不着板 | 搜板要有扫描；无前距只扫视不硬顶 |
 | 热替换探索驱动进程 | 退出钩子会拆掉整栈 | 改源码后停 launch 再起，不要覆盖正在跑的 console |
 | 对 explore_lite 以控制频率连发 resume | 每次 resume 都重发 NavigateToPose，目标在容差内立刻到达，狗不走 | resume 边沿触发一次；settle 后再起探索器 |
 | 无前沿后反复 recover 原地转 | 位移几乎为零，known 不涨 | 限制 recover 次数后切覆盖前进；闸清零 vx 时不要立刻改 yaw |

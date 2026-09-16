@@ -29,7 +29,8 @@ description: >-
 | 当前目标、已验证、风险、下一步 | `<project_root>/docs/PROJECT_STATE.md` | 聊天摘要、日报代替状态 |
 | 长期架构/接口/部署选择 | `<project_root>/docs/decisions/ADR-YYYYMMDD-<topic>.md` | 日报正文 |
 | 实验、故障、否证证据 | `<project_root>/docs/investigations/<topic>.md` | 只留终端滚屏 |
-| 当天跨项目管理汇报 | 本机 `工作汇报/日报/` | 每个项目各写一份日报 |
+| 当天跨项目管理汇报 | 本机 `工作汇报/日报/` | 每个项目各写一份日报；情报简报 |
+| 外部情报简报（版本/渠道、可行动对照） | 独立情报仓 `briefs/` + 该仓状态 | 工作日报、项目调查当新闻、未过门的开源配方 |
 | 可复现实验经验 | 本机 `知识库/每日经验/` | 个人配置仓 |
 | 每日经验导航 | 本机 `知识库/索引/每日清单.md` | 单独索引型经验正文 |
 | 通用规则与 SOP | `~/.cursor-personal-config/rules|skills` | 项目副本或日报 |
@@ -60,7 +61,7 @@ description: >-
 1. 先建立当天候选远程主机清单：汇总 SSH config 别名、已知主机角色、当天终端/Remote-SSH 记录和用户明确目标；逐台记录连接状态、探测时间、项目和证据。连接失败、无活动、权限不足和待确认项不得静默省略。
 2. 按主机逐台收集当天实际涉及的项目状态、Git diff/status、终端、远端日志和结构化结果；只有台账完成后才能声称“今日全部工作”，否则标记“主机覆盖不完整”。台账只用于取材，不直接写成日报章节。
 3. 先更新受影响项目的项目记录，再写一份日报和一篇经验总结。
-4. 日报严格按领导版样板写：首行 `YYYYMMDD`，正文只有「今日总结 / 存在问题 / 明日待办」三块；经验按方法卡和实验环写，跨项目共用的方法可合并说明。
+4. 日报写前再扫当天全部工作记录。正文用「今日总结 / 存在问题 / 明日待办」；总结用第一、第二，后两块用 1. 2.。条数跟内容走，一条一事，每条写满目标、结果和证明边界；经验按方法卡和实验环写。
 5. 统一归档命名为 `YYYY-MM-DD-<跨项目主题>日报.md` 与 `YYYY-MM-DD-<跨项目主题>经验总结.md`，更新 `每日清单.md`。
 6. 经验交付前检查每个关键方法的背景/原因/方法/参考、改前改后代码或待补、至少一轮假设/预期/Setup/Result/判断更新，以及结论边界和置信度。
 7. 同步终稿到本机并验证文件存在、UTF-8 无 BOM、无 U+FFFD/四连问号；没有本机同步证据时标记“远端暂存”。
@@ -110,6 +111,7 @@ description: >-
 
 - 项目状态与交接：`project-continuity`
 - 日报与经验写法：`work-reporting-pipeline`、`daily-report`、`daily-knowledge-base`
+- 外部情报早报：`industry-watch`（与工作日报分仓）
 - 现场证据：`remote-ssh-dev`、`field-validation-method`
 - 配置发布：`author-cursor-config`、`cursor-config-sync`
 - 中文和隐私：`utf8-chinese-docs`、`privacy-github`

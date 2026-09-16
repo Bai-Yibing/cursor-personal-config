@@ -1,0 +1,19 @@
+---
+description: 端侧长跑必须带 DRAM/ION/RSS 序列；切分前先分账
+alwaysApply: true
+---
+
+# 端侧系统验收（压测 / 切内存 / 板端体验）
+
+上板长跑、宣称 OOM、改 DRAM/ION 切分、或提供浏览器多模态体验时，遵循 skill **`edge-board-system-test`**。
+
+硬约束：
+
+1. **Linux DRAM ≠ ION/carveout ≠ RSS ≠ VmPeak**。禁止把两堆相加，禁止用文件体积或 VmPeak 当 OOM 证据。
+2. **Swap=0 时用户态墙是 `MemAvailable` 下限**；加速器墙是**持包那块 ION 堆**的 live/footer used。
+3. 未交 **1 Hz 文件 jsonl**（load 前/中/后、Release、进程退出）不得宣称 OOM 安全或该改切分。
+4. ION debugfs 在「last known client」处截断；用 footer `total` + 推理 PID 的 live client。采错 CMA/ISP 堆不得当成 HBM 占用。
+5. 先齐套加载再 `run`，结束 Release。压测与演示 Web **不要同时握**同一加速器包。
+6. 板上不保证 curl / flask / transformers：健康检查用 Python `urllib`；分词可 host detok 或板侧 BPE。
+7. SSH 不要等 `nohup` 管道；轮询 `n_turns` / `fatal`。杀压缩只用 `comm==`。
+8. 质量/速度数字仍走 `edge-accel-eval`；本规则不代替深评报告。

@@ -59,9 +59,12 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 
 - 代理/防火墙：HTTP 桥、DDS 需网络都通；跨机只 HTTP 时不依赖 ROS 域。
 - 板上默认上网若走弱 WiFi：先关 STA 省电、去掉会超时的备选 DNS；不要用境外探针延迟当国内链路差的证据。射频很差只能靠近接入点或改有线，软件清不掉。
-- 不在对话/公开配置中硬编码密码；密钥用 ssh config。公开文档主机只用角色占位，不写地址。
+- 不在对话/公开配置中硬编码密码；密钥用 ssh config。公开文档主机只用角色占位，不写地址。官方 perf skill 若向你要板端 IP：只在本机 ssh config 使用，**禁止**写入 skill/日报/调查。
+- **观察与动作分离**（地瓜板端 skill 同构）：健康快照、dmesg、CMA/ION 只读；改桌面、drop_caches、编译、升核须用户确认。读不到的 sysfs 记 `null`，禁止编造。
+- 长编译/量化：tmux 或一次等到产物 mtime；禁止短间隔反复 `tail` 同一日志（易触发工具循环保护）。
 - 实机改动前：备份配置、记录改前参数；运动控制先确认环境安全。
 - 回滚：上一版二进制或 git tag。
+- RDK 官方诊断/相机/TROS 命令入口见 `rdk-official-catalog`。
 
 ## 6. 个人 Cursor 配置
 
@@ -75,3 +78,4 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 | ROS2 | `ros2-robotics` |
 | 建图/语义/NPU/防撞/相机/IPC | 对应领域 skills |
 | 现场验证 | `field-validation-method` |
+| 地瓜官方命令对照 | `rdk-official-catalog` |

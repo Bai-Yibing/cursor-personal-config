@@ -1,11 +1,12 @@
 ---
 name: camera-usb-rgbd
 description: >-
-  USB RGB-D, UVC, and side-by-side stereo camera methodology: bandwidth,
+  USB RGB-D, UVC, MIPI, and side-by-side stereo camera methodology: bandwidth,
   zero-callback diagnosis, same-frame sync vs preview asymmetry, offline
   stereo calibration gates, and static CameraInfo publishing. Use when frames
-  stop, callbacks are zero, USB saturates, stereo looks desynced, calibration
-  RMS is high, or CameraInfo/stamp questions arise on remote Linux hosts.
+  stop, callbacks are zero, USB saturates, MIPI i2cdetect misses, stereo looks
+  desynced, calibration RMS is high, or CameraInfo/stamp questions arise on
+  remote Linux hosts.
 ---
 
 # USB 相机 / RGB-D / 双目 UVC 诊断方法论
@@ -33,6 +34,8 @@ USB/UVC RGB-D 或双目模组在远端 Linux 上出现：零回调、丢帧、�
 |----------|------|------|
 | USB2 | 带宽饱和 | 降分辨率/帧率、减少并发流 |
 | USB3 经 hub | 降速、共享 | 直连、换线、核对协商速率 |
+| RDK MIPI CSI | 扫不到 I²C、黑屏 | 先板端 `i2cdetect` + 官方 sample（`rdk-camera-setup`）；驱动/ISP 调参指向官方高级文档，不在本 skill 编驱动 |
+| 相机→BPU→HDMI/Web | 有流无框或卡顿 | 按采集 / 推理 / 显示三段定位（`rdk-vision-pipeline`）；时延仍走 `edge-accel-eval` |
 | 编码主码流 | 解码缺失 | 确认 fourcc 与解码器链 |
 | 多流同开 | 竞争带宽 | 单流稳定后逐流增加 |
 | 控制面 Meta | 期望与实际脱节 | 分开验证两层 |
@@ -115,3 +118,4 @@ ssh <perception_host> 'v4l2-ctl --list-devices; v4l2-ctl --list-formats-ext'
 - 语义占据：`semantic-occupancy-fusion`
 - 实验方法：`field-validation-method`
 - 远端执行：`remote-ssh-dev`
+- 地瓜 MIPI/管线官方步骤：`rdk-official-catalog`
