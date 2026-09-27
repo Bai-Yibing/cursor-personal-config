@@ -62,9 +62,11 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 - 不在对话/公开配置中硬编码密码；密钥用 ssh config。公开文档主机只用角色占位，不写地址。官方 perf skill 若向你要板端 IP：只在本机 ssh config 使用，**禁止**写入 skill/日报/调查。
 - **观察与动作分离**（地瓜板端 skill 同构）：健康快照、dmesg、CMA/ION 只读；改桌面、drop_caches、编译、升核须用户确认。读不到的 sysfs 记 `null`，禁止编造。
 - 长编译/量化：tmux 或一次等到产物 mtime；禁止短间隔反复 `tail` 同一日志（易触发工具循环保护）。
+- **大二进制上板**：`sftp.put` 整文件在隧道抖动后会少尾。按远端 `st_size` 偏移续传，结束对字节。少几百 KiB 当损坏，勿当「传完可 load」。
 - 实机改动前：备份配置、记录改前参数；运动控制先确认环境安全。
 - 回滚：上一版二进制或 git tag。
 - RDK 官方诊断/相机/TROS 命令入口见 `rdk-official-catalog`。
+- **双 UART**：MCU 日志路打断不了启动；抢 U-Boot 只在 Linux 串口。终端独占 COM 时 Agent 不要打开同一口，改由用户粘贴。SPL 循环 / AVB / A-B 槽见 `embedded-ab-avb-boot`。
 
 ## 6. 个人 Cursor 配置
 
@@ -79,3 +81,4 @@ ssh <perception_host> 'source /opt/ros/humble/setup.bash && source <project_root
 | 建图/语义/NPU/防撞/相机/IPC | 对应领域 skills |
 | 现场验证 | `field-validation-method` |
 | 地瓜官方命令对照 | `rdk-official-catalog` |
+| A/B + AVB 救砖 | `embedded-ab-avb-boot` |

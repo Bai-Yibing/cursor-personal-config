@@ -13,7 +13,8 @@ alwaysApply: true
 2. **Swap=0 时用户态墙是 `MemAvailable` 下限**；加速器墙是**持包那块 ION 堆**的 live/footer used。
 3. 未交 **1 Hz 文件 jsonl**（load 前/中/后、Release、进程退出）不得宣称 OOM 安全或该改切分。
 4. ION debugfs 在「last known client」处截断；用 footer `total` + 推理 PID 的 live client。采错 CMA/ISP 堆不得当成 HBM 占用。
-5. 先齐套加载再 `run`，结束 Release。压测与演示 Web **不要同时握**同一加速器包。
-6. 板上不保证 curl / flask / transformers：健康检查用 Python `urllib`；分词可 host detok 或板侧 BPE。
-7. SSH 不要等 `nohup` 管道；轮询 `n_turns` / `fatal`。杀压缩只用 `comm==`。
-8. 质量/速度数字仍走 `edge-accel-eval`；本规则不代替深评报告。
+5. **切分落地禁止手改 AVB boot 内 DTB。** 匀堆走厂商脚本或已签名镜像；救砖见 `embedded-ab-avb-boot`。
+6. 先齐套加载再 `run`，结束 Release。压测与演示 Web **不要同时握**同一加速器包。
+7. 板上不保证 curl / flask / transformers：健康检查用 Python `urllib`；分词可 host detok 或板侧 BPE。
+8. SSH 不要等 `nohup` 管道；轮询 `n_turns` / `fatal`。杀压缩只用 `comm==`。
+9. 质量/速度数字仍走 `edge-accel-eval`；本规则不代替深评报告。

@@ -66,7 +66,9 @@ description: >-
   └─ 禁止：ION 砍到「文件和」；DRAM+ION 相加当总内存；用 VmPeak 当 RSS
 ```
 
-桌面会话（gnome/Xorg）常比推理进程更吃 DRAM。先停非必要 GUI/压缩进程，再考虑改 DTB 切分。
+桌面会话（gnome/Xorg）常比推理进程更吃 DRAM。先停非必要 GUI/压缩进程，再考虑改切分。
+
+**切分落地**：只走厂商已验证脚本或已签名镜像。禁止手改 AVB boot 槽内 DTB/carveout 寄存器——地址越物理 DRAM 会内核 panic，文件变更会 `Hash mismatch` 后复位。救砖见 `embedded-ab-avb-boot`。
 
 ## 4. 标准操作流程 SOP
 
@@ -124,6 +126,7 @@ description: >-
 | 为体验面再 load 一套 | IOVA / 双握 | 停 soak 再起 Web，或相反 |
 | 把 feed dump 的 RoPE 当产品 | 任意 prompt 会越界或全零 | 导出 0..cache-1 表 |
 | 官方 monitor 当 OOM 公理 | 口径不同 | 本 skill 的 A/B/C 仍要采 |
+| 手补丁 boot DTB 匀 ION | AVB 废槽 + 越界 panic | 厂商脚本/已签名镜像 |
 
 ## 8. 交付 / 复盘清单
 
@@ -141,4 +144,5 @@ description: >-
 - `horizon-bpu-ptq`：编译门禁
 - `field-validation-method`：O-H-V-C
 - `rdk-official-catalog`：官方采集器只作线索
+- `embedded-ab-avb-boot`：AVB/A-B 槽；禁止用废签名的方式改 ION DTB
 - `remote-ssh-dev` / `privacy-github` / `utf8-chinese-docs`

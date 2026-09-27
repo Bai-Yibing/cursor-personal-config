@@ -20,7 +20,8 @@
     "project-continuity.mdc",
     "knowledge-lifecycle.mdc",
     "edge-accel-eval.mdc",
-    "edge-board-system-test.mdc"
+    "edge-board-system-test.mdc",
+    "embedded-ab-avb-boot.mdc"
   ],
   "skills": [
     "daily-report",
@@ -45,6 +46,8 @@
     "edge-accel-improve",
     "rdk-official-catalog",
     "edge-board-system-test",
-    "industry-watch"
+    "embedded-ab-avb-boot",
+    "industry-watch",
+    "community-edge-npu"
   ]
 }

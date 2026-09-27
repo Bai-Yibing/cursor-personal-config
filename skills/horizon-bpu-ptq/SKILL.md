@@ -58,6 +58,9 @@ description: >-
 - **多核 HBM 主机 qemu 停在 Model Input Info 不能当卸载失败**：load 过仍可能 qemu 挂死；少核去喂会被 runtime 拒绝。数值放到板端 `device` 或已验证的单核路径。
 - **HBM greedy 默认跟 host 量化仿真同岔，不自动等于公版 generate**：cosine / `_rmspp` 只能证明 convert 契约。弱提示可语义跑飞；对话模板另测。
 - **板端时延必须独占加速器并记录频率**：并发占核的墙钟不能当芯片能力；CPU pin 与 live governor 可能只改变 pre/post，不改变 `rt.run` infer。
+- **`cal_data_type=float32` 时不要假设编译器 `norm_type` 会改校准集**：校准 npy 必须预归一化到运行时分布，否则仍可干净编译、上板垃圾。
+- **头内 `ScatterND` 锚点解码可编译成功且永不写 objectness/class**：切在 decode 前、运行时后处理；不要用「link_ok」当检测器可用。
+- **LLM 不以 cosine 验收**：至少 Prefill↔Decode greedy 一致、held-out PPL、任务锚。VLA 再报 `‖a‖/‖a_ref‖`，并在同一 harness 打参考列；cosine 对动作幅度无感。
 - **同 feed 才可比**：主机 verifier / 板端 / float 对照必须同一预处理、同一输入张量域；跨域数字只能当线索。
 - **校准张量域必须贴导出/板上喂数**：0–1 letterbox 的图用 0–255 校准，大模型分类可被压死；校准 npy 上的高 max_prob 可以是错类虚荣。域对齐后再谈 FPN/头。
 - **自回归 tok/s 由 Decode T=1 决定**：Prefill 窗（T=8 vs T=64）只改 TTFT。不要为提 tok/s 把 greedy Decode 编成 T>1，那是另一张图。
@@ -70,6 +73,11 @@ description: >-
 - **教师 greedy 吸同一循环 id 时，不要写成量化独有**：float greedy 也会塌；开放文本必须对照教师同款采样（如 RAS）。量化体 RAS 在相近 topk 上抽偏是 margin，不是 packing、不是缺 skip 重编。
 - **缺 prompt 尾与峰塌是两洞**：短窗只装前缀会复读提示音；float 补 teacher-force 尾后 RAS 可逐位 native。量化 freerun 仍塌时先停采样超参，再动配方。
 - **短窗切界失败不能写成估计器不能量化**：同一 Euler 在短窗多块失败、加长一窗过门，是窗长/重叠契约。先对齐产品 mel 长，再谈量化位宽。
+- **加速器图质量失败时禁止把最重网搬到 CPU 当产品路径**：ARM 上的教师 LLM / 多步 Euler 是秒级，板上已有毫秒级 `run()`。质量工作留在校准/配方/调度，CPU 只做离散胶水（采样、分词、CIF）。
+- **Prefill 逐步重灌是质量拐杖，不是速度 SKU**：绕过 Decode 时墙钟约 O(n)×Prefill。Decode 逐步 cosine 修好前可用来听感，交付速度仍看 T=1 Decode。
+- **声码器链必须拆段归因**：浮点估计器+量化声码器过门、量化估计器无论声码器都失败，漏斗在估计器，不要重编整条 token2wav。
+- **官方某 SoC 的 PPL/样例包不能当另一 march 的质量门**：可编 ≠ 任务达标；禁止把甲芯片官方 PPL 抄到乙芯片交付。
+- **PTQ 仿真绑定已验证容器**：同一 `*_ptq_model.onnx` 在 GPU 容器崩溃、在 CPU 容器有限，不能用崩溃否证图。CIF/argmax 留 CPU 是产品结构，不是漏编。
 - **图上拆 Softmax（Exp 等）不等于速度 SKU**：板上 `run` 仍可与 nodq 同量级；随图变只证明 live，不证明更快。
 - **厂商官方 Agent Skills 是命令溯源，不是任务门**：D-Robotics `rdk-skills` / `oe-skills-s` / `oe-skills-x5` 可查 YAML、`hb_compile`/`hb_mapper`、`hrt_model_exec`。冲突时现场门禁优先。X=`.bin`，S=`.hbm`。标准 OE 包 ≠ OE-LLM 包。对照 `rdk-official-catalog`。
 - **无证据不升混精度**：官方 router 亦禁止在全 int8 未证伪前主动升 int16/fp16；升位宽还须再过 CPU=0。HMCT cosine≥0.99 只是工具链探针。
@@ -81,6 +89,28 @@ description: >-
 - **产品关 thinking 时板上必须禁采样 think 块**：空 `<think></think>` 模板会把看图句打成闲聊/套话。链路通 ≠ 内容贴教师。
 - **大 Prefill load 前释放其它加速器/ION 占主**：常驻压缩/视觉 daemon 可让齐套 load `RESOURCE_EXHAUSTED`；停占主后再 load，会话结束 Release。
 - **calib ≠ held-out**：评测集不得再当下一轮校准；同矩阵重编若零收益则停。
+- **复制相同校准样本加权不是新域**：max 校准对重复 npy 不改 absmax，HMCT 可逐位相同、听感不变。要新激活就刷不重复轨迹/前缀。
+- **任务稀有 token 必须进校准**：描述图校准几乎看不见十进制 `0` 或 JSON 时，板上会把 `0` 抽成 `!`。只换独立头不够时，fused Decode 也要同域。应用层把 `!` 改成 `0` 不是生成门。
+- **stamp dump 契约先对齐再谈 HBM**：seq / cache / n_img / 视觉 shape 与包不一致时直接拒绝。默认 vis448 T=64 cache_256 不能喂 T=112 cache_2048。抽词用 `last_real`，chunk 末格常是 pad。视觉输出必须 scatter 回 Prefill hidden。qemu 挂 Model Input Info 不能否证 `link_ok`，也不能当板上视觉失败。
+- **工具链余弦 ≠ 听感 WAV**：HMCT / 校准 cosine 过、主机 PTQ mix Whisper 过，都不能代替编译 HBM 板上 `run()`。mix ONNX 与 HBM 不是同一产物。
+- **逐文件相同 WAV 否证编译旋钮**：对照句 WAV sha 相同，则 compiler O 级或单节点 qtype 钉输出不是该句杠杆；停刷、换图或校准域。
+- **独立头 overlay 同坏文则漏斗在体/KV**：hidden-only Decode 外接独立 `lm_head` 与 fused 逐步文本相同，否证 fused 头独因；下一刀是校准窗或体，不是再换头。
+- **dump 秩与 runtime 对齐**：同元素 2D dump 对 3D `[1,…]` runtime 先 reshape / 加 batch，不要先当 dump 坏或重推包。
+- **mix 声码器过不能证明 encoder HBM**：估计器 HBM 逐步可贴 PTQ，而板上 encoder μ vs PTQ 仍有 maxabs；CFM 会放大。先交叉：PTQ mel + 板上 vocoder。
+- **未校准 host IR 余弦 1 不能否证校准 HBM 逐步命中**：同一前缀上 Qwen 与 leap 中间表示 `hidden_cos=1`、`top1_match=1`，只证导出图对齐。校准后的 HBM Decode 逐步 `hit_at_1` 仍须同 feed 另测。
+- **句末单字 U+FFFD 且句号完好先查 byte-fallback**：整句通顺、词表无该字整词时，未闭合 UTF-8 加 `errors=replace` 会落成替换符。守卫只在 pending 字节未写完时改 argmax；整字 token 不限制。未拿到本轮 token id 前，不要重编 HBM。
+- **字错率过不能代替听感门**：同句 CER=0 仍可能响度、过零比、频谱平坦度、log-mel 余弦不过。听感对照同一句的浮点声码器，不要用转写代替。
+- **点积先收成 fp16 再除以 sqrt(d) 会变成全 0 hidden**：校准 |Q|·|K|·d 超过 fp16 上界（65504）时，点积变 Inf，两处 Inf 的 softmax 是 NaN，残差读出来是 0，argmax 落到 id 0。先缩放再收窄。文件名改了不等于导出图改了，要对照 mlir。输入加一个小偏置不是修复。
+- **最终 RMS 的 fp16 平方溢出同样会把 hidden 清成 0**：元素绝对值超过 256 时 `x^2` 变 Inf，`rsqrt` 变 0，这一层替换残差。只在最终范数上把输入乘 1/8、eps 乘 1/64，实数里约掉，平方可撑到绝对值 2040。整层改成 fp32 能编过，但板上第一步可以永不返回。块内范数不要一起缩。
+- **界面上的乱码消失不能记到未部署的守卫头上**：板上脚本里没有这段逻辑时，先记录用户观测，原因标待验证。不要据此重编。
+- **系统提示和词表改字不是权重里的名字**：碎片 token 会碰到别的词。解码后替换只改显示。要模型自己说出新名字，就做不带系统提示的语言侧微调，再按同一张图重编，不覆盖正在用的包。浮点门禁不过不开编。
+- **板上全 blank 若与主机 HBM qemu 一致，漏斗在编译后的包**：同 feed 的 PTQ ONNX 仍有非 blank 时，不要怪板端运行时或分词器。只钉一层、而 PTQ argmax 不变，就停掉这一刀。传输体积对不上的文件删掉，不拿它的结果当门。
+- **固定窗困惑度不随 cache 变长而提高**：多出来的槽被掩码挡住，Prefill 和 Decode 墙钟变长。`cache_len` 超过模型位置上限时入口应直接拒绝。要更快就用已测过的短格，不把 cache 加到位置上限的两倍。
+- **短提示左齐且 mask 把有效 key 放在 cache 末尾**：长度不超过半窗时最后一格注意力是空的，短文本会复读或打出 id 0。看图 prompt 更长时左齐仍可能正常。先改对齐再重编权重。
+- **另一套 SDK 的公开困惑度不能当本包劣化**：协议和运行时不同。同机、同切分、同 token 重跑 float 之前，只报本包自己的数字。
+- **首词是 think 标签则本轮 greedy 作废**：全 HBM 仿真未关 thinking 会先抽模板 token。丢掉该轮，用同一包、`enable_thinking=False` 重跑，再谈图或量化。
+- **包装器 CLI 上限 ≠ convert 预算**：SDK argparse 的 cache/chunk 顶只是入口。放开环境变量后仍按 SIGSEGV 禁同图重试，不得把 CLI 顶写成编译器已证顶。
+- **只清已链接格 scratch**：格内已有交付 `.hbm` 才删 `.bc`/中间 ONNX/重复 workdir HBM。未链接格保留 `.bc` 以便续编。不杀在跑 convert。
 - **静态图 vs 自回归运行时**：固定 shape 视觉前端可单次推理打包；LLM/VL/TTS Talker 动态图用独立 runtime（System1+System2）；运行时 mask/dtype/prefill 契约须与编译一致。
 - **分层验收**：load / finite / 链路通 / 质量 分列；oracle 残差路径 ≠ 全自由 freerun；联调 e2e_ok ≠ 语义正确。
 - **板端是真相**：开发机 cosine/编译 latency 不可替代板端墙钟与任务质量。
@@ -169,6 +199,11 @@ description: >-
 | NV12 包 qemu 召回低、工具链拒 nv12+ddr | pyramid 契约 ≠ 软件张量门 | 精度走 RGB-fm；NV12 只板上 ISP |
 | mixer HBM hidden≈0.29、host w8 sim≈1、拆段拼接≈1 | `concat([q]*ratio)` 一类 repeat 进 convert | 双路径 `tile`；不覆盖 concat 默认包 |
 | 残差校准包与旧包 hidden 逐位相同 | 校准域没改到激活 | 停该配方；比 IO scale |
+| 同一 npy 复制十份再编，HMCT 逐位相同 | max 校准不看重复计数 | 刷不重复轨迹；对照 absmax |
+| 找物 JSON 解析期把 `!` 换成 `0` 过烟测 | 原始 greedy 仍是 `!` | 原始 bbox 必须是 `[0-9.]`；`gate_bbox_raw` |
+| 描述图校准后板上数字槽抽 `!` | 校准几乎无十进制 `0` | 头与 fused Decode 都灌任务前缀 |
+| 默认 vis448 T=64 dump 喂 T=112 cache_2048 | 契约错位 | stamp `--from-stamp`；错则拒 |
+| 视觉 qemu 挂 Input Info 就当 vis HBM 坏 | qemu ≠ device | `link_ok` 另记；板上 `run` |
 | 四核 HBM load 过、qemu 停在 Input Info | 主机 nash qemu 不支撑该核图 | 板上 device；禁止少核去喂 |
 | 多核 3D 体积图 Recv misplaced，小图探针却能链上 | 不是单一维奇数/偶数 | 最小核图否证该假设后改切分轴或核数；全图成功前不算过 |
 | 多核体积图 Recv，切分轴能链上但头层量化 cosine 崩 | 切分改变了校准/调度形状 | 切分维 pack 进 batch 成单 Conv；独立 workdir；float 与原图 maxabs=0 再编 |
@@ -193,6 +228,11 @@ description: >-
 | oracle/`force_n` Whisper=0、RAS freerun 糊 | 采样轨迹离 native | 分层；勿为听感改量化或升核 |
 | float greedy 与量化 greedy 同吸循环 id | 教师解码器本身不用 greedy | 对照教师 RAS；勿为 greedy 循环重编 skip |
 | 短窗两块 CER 高、加长一窗过门 | 切界/重叠，不是图不能量化 | 先改窗长对齐产品 mel |
+| 量化估计器 CER 高、浮点估计器+量化声码器过门 | 漏斗在估计器 PTQ | 只动估计器校准/图；勿整条 vocoder 重编或改 CPU Euler |
+| 开放句质量差就把 LLM/Euler 放到 ARM | 墙钟从百毫秒变成数秒 | 重网络留加速器；CPU 只胶水 |
+| Prefill-only 听感过就当产品 tok/s | 每步重灌 Prefill | 速度 SKU 仍是 Decode T=1 |
+| 甲芯片官方 PPL 过、乙芯片同名包未测 | 不同 SDK/march | 各 SoC 自己的任务门 |
+| GPU 容器加载 PTQ ONNX 崩就当图坏 | runtime/容器 ABI | 换已验证 CPU 容器再测 |
 | 短 Prefill 复读提示音、补 tail 后 float RAS 逐位 native | packing 洞已闭 | 量化 freerun 另开漏斗，勿混成一刀 |
 | nash qemu 挂 Model Input Info、板上 finite | 主机 qemu 不支撑该图 | 板上 `run`；勿当 HBM 损坏重推 |
 | LLM HBM cosine 过、leap freerun ASR 乱 | 采样/缓存/位置契约或配方残差 | 听感桥先 native/oracle token；再换 leap freerun |
@@ -236,12 +276,39 @@ description: >-
 | 进度条 100% 当 `link_ok` | 文件可能尚未写出 | 等 `.hbo`/`.hbm` 与 sha |
 | 用 Prefill 宽窗填 decode 槽做 freerun | 位置/注意力契约错，cosine 虚荣 | T=1 + 绝对 RoPE；对照教师逐步 |
 | 有限值 WAV / CER 未过就宣称 TTS 可用 | 链路通 ≠ 听感 | Whisper 对目标句 + 分层 oracle/freerun |
+| 复制校准文件当「加强 RAS 域」 | 重复样本不改 max absmax | 不重复轨迹；先比 HMCT 是否逐位相同 |
+| 应用层修 JSON 数字当板上过门 | 只改解析 | 原始 greedy 无 `!` |
+| 只用独立 lm_head 修 Decode fused 数字 | 数字 logit 在 fused 头 | Decode 同域校准 |
+| 错窗 dump 仍硬跑 Prefill | 抽 pad / 形状炸 | 对齐 seq/cache/n_img |
+| dump 缺 leading-1 就重 dump 整包 | 元素数已对，只是秩 | reshape / unsqueeze batch |
+| HMCT≥0.98 或主机 mix CER 当板上听感 | mix ONNX ≠ 编译 HBM | 板上 `run()` Whisper |
+| 对照句 WAV sha 相同仍升 O 级 / 钉 qtype | 该旋钮未改波形 | 停刷；换注意力图或校准域 |
+| overlay 独立头仍同 `!` 就再只换 fused 头 | 漏斗在体/KV 或校准窗 | 同 feed 对照 overlay vs fused；改校准或体 |
+| encoder HMCT μ≈0.99 仍刷估计器 qtype | mix 声码器已过，漏斗在 HBM μ | PTQ mel×板上 vocoder；再动 encoder 映射 |
+| 未校准 host IR cosine=1 就宣布 HBM Decode 已修好 | 两套图不是同一量化域 | 校准 HBM 逐步 `hit_at_1` 另测 |
+| 句末 U+FFFD 就重编整图 | 稀有字 byte-fallback 未闭合 | 先对词表 decode 同形；再 dump token id |
+| CER=0 就当听感过 | 响度/过零/频谱仍可失败 | 同句浮点声码器五项再加 CER |
+| 坐标全是 `!` 就只重校准 Decode | hidden 全 0 时 argmax 是 id 0 | 先查最终 RMS 的 fp16 平方；再查 QK 是否在缩放前收窄 |
+| 整层 RMS 改 fp32 当溢出修复 | 能编过，第一步可以不返回 | 只缩最终范数的输入和 eps |
+| 词表改品牌字符串 | 碎片 token 会改掉别的词 | 语言侧微调后按原图重编 |
+| 一层余弦差就钉这一层 fp16 | PTQ argmax 可能不变 | 先看 argmax；不变就停 |
+| 加长 cache 当精度或速度 | 固定窗被掩码挡住，墙钟变慢 | 短格做速度；长格只为上下文 |
+| 短文本复读就重训 | 左齐 + 末尾 mask 使最后一格为空 | 右齐后再看权重 |
+| 拿另一 SDK 的公开 PPL 写劣化 | 协议不同 | 同机同切分重跑 float |
+| 首词 `<think>` 当 HBM 坏 | 模板开关开着 | 作废该轮；关 thinking 再抽 |
+| 把 SDK argparse 顶当 convert 顶 | 入口限制 ≠ 编译器预算 | 放开包装上限后仍 SIGSEGV 即停同图 |
+| 清未出盘格的 `.bc` 腾盘 | 续编断点没了 | 只清已 `link_ok` 格；保留失败格 |
 | 只降 `opt` 救多图身份塌缩 | 漏斗在 dynamic_quant / `llm_convert` | 双路径 nodq；hop 用图像间 cosine |
 | 用 maxabs>eps 当 hop live | 常量图仍可有差 | cosine 门 + 任务随输入变 |
 | 把刷屏墙钟当芯片 tok/s | 日志 I/O 税 | 静默 stdio；对照 greedy ids |
 | 某 SoC 视觉升核救 nodq 慢 | 编译器核数范围可能是 1 | 先读 range；失败停 remap |
 | 用主机 qemu 首词否证板上 caption | runtime 不同 | 板上 greedy 才是内容门 |
 | 把 float 头 skip 包当全 BPU TTS | 头仍在 CPU | 驻留独立 `lm_head` |
+| 开放句糊就把 LLM/Euler 整网放到 ARM | 墙钟从百毫秒变数秒，且不修加速器图 | 重网络留加速器；CPU 只胶水 |
+| Prefill-only 听感过就报产品 tok/s | 每步重灌 Prefill，墙钟 O(n)×Prefill | 速度 SKU 仍看 Decode T=1 |
+| 量化估计器失败就重编整条 token2wav | 声码器可能已过门 | 拆 float/PTQ 交叉对照 |
+| 把甲 SoC 官方 PPL 当乙 SoC 交付门 | SDK/march 不同 | 各芯片自己的任务门 |
+| GPU 容器加载 PTQ ONNX 崩溃就当图坏 | 可能是容器 ABI | 换已验证 CPU 容器 |
 | qemu 挂 Input Info 就重编 yaml | load/I/O 可能已过 | 先板上 device |
 | 校准 npy 高 max_prob 当检测过关 | 可能是错域错类 | 与 float ONNX 同预处理对照类名 |
 | 融合 mixer 崩就先改校准/去 FQ | sim 已贴 float 时漏斗在 convert 图 | 先拆 mixer 子图再改 repeat 原语 |

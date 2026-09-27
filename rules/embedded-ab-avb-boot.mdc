@@ -1,0 +1,17 @@
+---
+description: AVB A/B 启动介质禁止手改 DTB；切槽走 misc/OTA 而非 saveenv bootcmd
+alwaysApply: true
+---
+
+# 嵌入式 A/B + AVB 启动
+
+改板级 DTB/ION、串口救砖、A/B 槽或 `Hash mismatch` 时，遵循 skill **`embedded-ab-avb-boot`**。
+
+硬约束：
+
+1. **禁止**直接覆盖 AVB boot 槽内 DTB/内核；ION 切分走厂商已验证脚本或已签名镜像。
+2. **禁止**对未验证槽输入 U-Boot `boot`（会先 `ab_select` 覆盖 `bootslot`）。救援用 `run avb_boot` + `run distro_bootcmd`。
+3. **禁止**把 `saveenv` 改 `bootcmd`/`ab_select_cmd` 当成已持久；冷启动须再 `printenv`。切槽用厂商 misc/OTA。
+4. U-Boot 分区号是**十六进制**；Linux p14 ≠ `mmc 0:14`。
+5. systemd `bootctl` ≠ Android 槽工具。不要 `dd` `ubootenv` / `mmc write` boot。
+6. Agent **禁止擅自 reboot**；终端独占串口时不要抢同一 COM。

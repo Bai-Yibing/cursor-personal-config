@@ -30,7 +30,7 @@ description: >-
 1. IOVA 是 **设备侧共享状态**（厂商 DNN/HBRT 栈；常与 UCP monitor 相关），不是进程私有页表。
 2. **有 per-handle 释放**（如 `hbDNNRelease`；Python 侧 `del` Runtime + `gc` 走析构）。**无**可靠的全局 IOVA flush 接口时，勿幻想「一键清表」。
 3. **会话内**：同会话 peer 必须在任一 peer **首次推理前**齐套 preload；禁止推理后再晚载兄弟段。
-4. **会话结束必须 Release**。把「永不卸载、绑到冷启」写成默认策略是反模式。
+4. **会话结束必须 Release**。把「永不卸载、绑到冷启」写成默认策略是反模式。交互客户端 SIGINT / Ctrl-C **不等于**板上 Release；须协议 `/quit` 或 stop 脚本看到 `RELEASED`。
 5. **粘滞不对称有两层**：
    - **同管线 peer 序**（A→B vs B→A）
    - **跨管线方向**（管线甲→乙 vs 乙→甲）。**一侧实锤 ≠ 另一侧成立**。
@@ -38,6 +38,7 @@ description: >-
 7. **poison 锁是硬停**：bypass/force 只允许探针/诊断，**禁止**当作评测默认。
 8. 加载成功 ≠ 任务达标（精度/时延另报）。
 9. **官方 UCP「多模型 session / 板侧透传」不能否证 IOVA 粘滞**。文档能链式调用 ≠ 两存活进程可并发握包。ION/CMA 以板上活测为准（`rdk-memory-audit`），部署前预检堆大小。对照 `rdk-official-catalog`。
+10. **厂商 LLM SDK 与社区 `hbDNN` 封装默认视为不同运行时栈**。未验证契约前不要同会话双持有。对照 `community-edge-npu`。
 
 ## 3. 架构 / 选型决策树
 
@@ -139,6 +140,7 @@ description: >-
 | 错误本能 | 为何失败 | 正确做法 |
 |----------|----------|----------|
 | 永不 Release / 绑到 reboot | 叠映射→粘滞 | 会话结束必 Release |
+| 客户端 Ctrl-C 当会话结束 | 板上仍握包 | `/quit` 或 stop 脚本见到 `RELEASED` |
 | 死绑单一产品加载序 | 粘滞后可能恰好是死序 | 双序探针 + 锁定存活序 |
 | 把单向 handoff 写成双向公理 | 反向未证却排进同 boot | 方向分列证据；一 boot 一管线 |
 | 产品栈本 boot 已 load 仍上评测 dual | Release ≠ 映射干净 | 冷启后评测窗口禁止产品占核 |

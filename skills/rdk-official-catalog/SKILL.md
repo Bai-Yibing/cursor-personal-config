@@ -25,7 +25,7 @@ description: >-
 
 ## 2. 不变量
 
-1. **冲突裁决**：现场硬门（`horizon-bpu-ptq` / `edge-accel-eval` / `edge-bpu-runtime-iova` / `privacy-github`）> 官方单步默认 > 官方全链路示例配方。
+1. **冲突裁决**：现场硬门（`horizon-bpu-ptq` / `edge-accel-eval` / `edge-bpu-runtime-iova` / `privacy-github`）> 官方单步默认 > 官方全链路示例配方。同芯社区封装（BLLM/BCDL 类）再低一档：可对照、可试用，不能覆盖现场门；见 `community-edge-npu`。
 2. **X 系列产物 `.bin`，S 系列产物 `.hbm`**。march：X5 `bayes-e`；S100 `nash-e`/`nash-m`；S600 `nash-p`。
 3. **观察与动作分离**：诊断只读；改桌面/清缓存/升核/编译须单独确认。读不到的信号报 `null`/`false`，禁止编造。
 4. **主机只用角色占位符**。官方 perf skill 常向用户要板端 IP——本仓禁止写入文档与 skill。
@@ -74,6 +74,9 @@ TogetheROS / hobot 节点？
   → 报告口径仍走 edge-accel-eval（独占、分段、任务分列）
 多 HBM / iova addr not equal？
   → 只走 edge-bpu-runtime-iova；官方「多模型 session」不能否证粘滞
+启动砖 / Hash mismatch / SPL 循环 / A-B 槽 / overlayroot /boot？
+  → 只走 embedded-ab-avb-boot
+  → BSP 刷机、mmc write 仍须用户确认；禁止手改 AVB boot 内 DTB
 ```
 
 ## 5. 从官方抽来、已并入本仓的方法（摘要）
@@ -104,6 +107,7 @@ TogetheROS / hobot 节点？
 | UCP 代码才算部署完成 | 本仓 Python/`run()` 任务门即可验收 |
 | 把 OE-LLM 包与标准 OE 混装 | 版本/venv 踩踏 |
 | BSP 刷机、擅自 reboot | Agent 禁止 reboot |
+| 手补丁 AVB boot DTB 匀 ION | 整槽哈希失败并复位；走 embedded-ab-avb-boot |
 | 把 91 个官方 skill 装进个人仓 | 抢上下文、与现场门打架 |
 
 ## 7. SOP（引用官方时）
@@ -116,6 +120,7 @@ TogetheROS / hobot 节点？
 
 ## 8. 相关
 
-- `horizon-bpu-ptq` / `edge-accel-eval` / `edge-accel-improve` / `edge-bpu-runtime-iova`
+- `horizon-bpu-ptq` / `edge-accel-eval` / `edge-accel-improve` / `edge-bpu-runtime-iova` / `community-edge-npu`
+- `embedded-ab-avb-boot` / `edge-board-system-test`
 - `remote-ssh-dev` / `camera-usb-rgbd` / `ros2-robotics` / `field-validation-method`
 - `privacy-github` / `author-cursor-config`

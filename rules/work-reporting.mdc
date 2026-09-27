@@ -22,6 +22,7 @@ alwaysApply: false
 | 现场实验方法 | field-validation-method |
 | 外部情报早报 | industry-watch（不是工作日报） |
 | 建图/语义/NPU/防撞/相机/IPC | visual-slam-mapping / semantic-occupancy-fusion / horizon-bpu-ptq / nav-safety-collision / camera-usb-rgbd / device-ipc-protocol |
+| A/B + AVB 启动/救砖 | embedded-ab-avb-boot |
 
 ## 硬性要求
 

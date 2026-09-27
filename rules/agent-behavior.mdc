@@ -10,7 +10,8 @@ alwaysApply: true
 - 多加速器模型上板：遵循 `bpu-iova-runtime` / `edge-bpu-runtime-iova`（**兄弟段同预载**、禁止推理后晚加载 peer、禁止 del 后同 boot 重载）；**禁止擅自 reboot 板端**。
 - 量化编译：遵循 `bpu-quantize` / `horizon-bpu-ptq`（同 feed 对照、calib≠held-out、oracle≠freerun、先运行时契约再重编、按 TASK 隔离产物）。
 - **端侧质量/速度**：先 `edge-accel-eval` 深评写 md，再 `edge-accel-improve` 按层改（一次一个杠杆；速度/质量可双 SKU）。禁止把核数当 N 倍墙钟。
-- **端侧系统验收**：长跑/切 DRAM·ION/板端体验遵循 `edge-board-system-test`。未交 hwmon 序列不得宣称 OOM 安全或该改切分。
+- **端侧系统验收**：长跑/切 DRAM·ION/板端体验遵循 `edge-board-system-test`。未交 hwmon 序列不得宣称 OOM 安全或该改切分。ION 禁止手改 AVB boot 内 DTB。
+- **A/B + AVB 启动**：救砖/切槽遵循 `embedded-ab-avb-boot`。禁止对未验证槽 `boot`、禁止 `mmc write` boot、禁止把 `saveenv bootcmd` 当已持久。终端独占串口时不要抢 COM。
 - **地瓜官方 skill**：命令与工具路径可引用 `rdk-official-catalog` 指向的公开仓；任务质量、IOVA、独占时延、隐私以本仓 skill 为准。禁止把板端 IP/密码写入文档；禁止整仓镜像官方 90+ skill。
 - 遵循 user rules、skills、MCP（先读 schema）。
 - **含中文文档**：遵守 rule `utf8-chinese-docs` + skill `utf8-chinese-docs`（写完文件级校验；禁 PS GBK 写盘）。

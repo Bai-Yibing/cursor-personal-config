@@ -106,12 +106,14 @@ description: >-
 | 聊天总结代替证据 | 跨会话不可检索，也无法审计 | 命令和关键字段落入 investigation |
 | 发现一次经验就加 rule | 会积累无证据禁令 | 先在项目/每日经验验证，再抽象升级 |
 | 只改项目 `.cursor` | 其他项目和机器无法获得更新 | 改真源、更新 manifest、安装验证 |
+| 把调查/ADR 写进 `.cursor/工作存档/docs` | 工作存档会被安装覆盖、也不属于任一项目仓 | 项目事实进 `<project_root>/docs/`；工作存档只暂存统一日报与经验 |
 
 ## 8. 相关
 
 - 项目状态与交接：`project-continuity`
 - 日报与经验写法：`work-reporting-pipeline`、`daily-report`、`daily-knowledge-base`
-- 外部情报早报：`industry-watch`（与工作日报分仓）
+- 外部情报：`industry-watch`（存量 catalog / 早报 briefs / 查重 prior-art；与工作日报分仓）
+- 同芯社区运行时：`community-edge-npu`
 - 现场证据：`remote-ssh-dev`、`field-validation-method`
 - 配置发布：`author-cursor-config`、`cursor-config-sync`
 - 中文和隐私：`utf8-chinese-docs`、`privacy-github`
