@@ -79,7 +79,7 @@ description: >-
 - **官方某 SoC 的 PPL/样例包不能当另一 march 的质量门**：可编 ≠ 任务达标；禁止把甲芯片官方 PPL 抄到乙芯片交付。
 - **PTQ 仿真绑定已验证容器**：同一 `*_ptq_model.onnx` 在 GPU 容器崩溃、在 CPU 容器有限，不能用崩溃否证图。CIF/argmax 留 CPU 是产品结构，不是漏编。
 - **图上拆 Softmax（Exp 等）不等于速度 SKU**：板上 `run` 仍可与 nodq 同量级；随图变只证明 live，不证明更快。
-- **厂商官方 Agent Skills 是命令溯源，不是任务门**：D-Robotics `rdk-skills` / `oe-skills-s` / `oe-skills-x5` 可查 YAML、`hb_compile`/`hb_mapper`、`hrt_model_exec`。冲突时现场门禁优先。X=`.bin`，S=`.hbm`。标准 OE 包 ≠ OE-LLM 包。对照 `rdk-official-catalog`。
+- **官方技能并进本仓，不另装一套**：命令和版本身份查 [rdk-skills](https://github.com/D-Robotics/rdk-skills) / [oe-skills-s](https://github.com/D-Robotics/oe-skills-s)，动手门禁以本节为准。2026-09-24 的技能包 S `v1.1.2`、X5 `v1.1.1` 只是索引版本。现场继续用 OE 镜像 `v3.7.0` 和 OE-LLM **1.0.2**。不因技能包号去换 `hb_compile`、刷板或把未安装的 OELLM 2.0 接进当前会话。Qwen3.5 不在 1.0.2 的 `model_name` 里，也不在手册 v1.0.5 的 Qwen3 清单里，继续走自有 leap。标准 OE 包与 OE-LLM 包分开，不混装。X=`.bin`，S=`.hbm`。官方也要求先 PTQ、探测已有 Docker 且不自动拉镜像；其全链路示例仍不得覆盖已过门的 w8 驻留包。没有打开的文档页不补参数。版本针见 `rdk-official-catalog`。
 - **无证据不升混精度**：官方 router 亦禁止在全 int8 未证伪前主动升 int16/fp16；升位宽还须再过 CPU=0。HMCT cosine≥0.99 只是工具链探针。
 - **QAT/导出一致性按阶段切**：`qat.pt` → `export.pt`/`pre_export` → `qat.bc` → `quantized.bc` → HBM/板端。单帧数值差不能跳阶段归因；须稳定 badcase。
 - **编译 YAML 须确认后再 `hb_compile`**：官方 HBDK skill 强制；本仓另加双路径、不覆盖过门包。

@@ -8,13 +8,28 @@ description: >-
   on-device quality, IOVA, or privacy rules.
 ---
 
-# 地瓜官方 Skill 目录对照（个人仓）
+# 地瓜官方做法如何并进本仓
 
-地瓜（[D-Robotics](https://github.com/D-Robotics)）把板端诊断、量化编译、推理评测做成可安装 Agent Skills。本 skill **不镜像**那 90+ 份正文，只规定：何时去官方仓、何时以本仓现场门禁为准。
+地瓜（[D-Robotics](https://github.com/D-Robotics)）的 Agent Skills 是命令和文档索引。本文件只做两件事：版本针，以及和现场门禁冲突时听谁的。能指导动手的句子写在 `horizon-bpu-ptq`、`edge-accel-eval`、`edge-bpu-runtime-iova`、`remote-ssh-dev` 里，不在这里再养一套官方技能树。
 
 官方文档/技能内容多为 CC-BY-4.0；此处为摘要与冲突裁决，不是替代官方原文。
 
-总入口：[D-Robotics/rdk-skills](https://github.com/D-Robotics/rdk-skills)。安装示例：`npx skills add d-robotics/rdk-skills`（交互勾选）。**不要**把官方包整仓拷进个人 `cursor-personal-config`。
+总入口：[D-Robotics/rdk-skills](https://github.com/D-Robotics/rdk-skills)、[oe-skills-s](https://github.com/D-Robotics/oe-skills-s)。**不要** `npx skills add` 整包进个人仓，也不要把官方 `SKILL.md` 拷进来。没有文档 MCP 时，打开开发者页面核对命令；页面没打开就写未取到，不用记忆补参数。
+
+## 0. 版本针（2026-09-27 核对）
+
+技能包号、编译器、OE-LLM、板端系统软件是四层。一层更新不等于其余三层该换。
+
+| 层 | 本仓继续用 | 2026-09-27 看到的官方动静 | 动作 |
+|----|------------|---------------------------|------|
+| S 系列技能包 | 只当索引 | [rdk-skills](https://github.com/D-Robotics/rdk-skills) 提交 `upgrade OE Tool Chain (S) to v1.1.2`（2026-09-24）；仓内 `VERSION` 为 `1.1.2`。同日 X5 技能包到 v1.1.1。`oe-skills-s` 说明写当前开发版本 `v1.1.2`，并删掉仓内代码摘录，改走文档检索 | 不升编译器，不整包安装 |
+| OE 开发包 | 现场镜像 `v3.7.0` | 手册仍写开发包 V3.7.0。`rdk_s_doc` 09-23/24 的提交是搜索索引和上传覆盖，不是新工具链 | 不换镜像、不改 YAML |
+| OE-LLM | 现场 **1.0.2**。名单有 `qwen3` / `qwen3-vl-*`，没有 Qwen3.5 | 下载页仍是 V1.0.2。S600 大模型手册 v1.0.5（页上 2026-08-20）仍是 Qwen3 / Qwen3-VL。`oellm_server` 最后提交 2026-03-23。MiniCPM 样例写 2.0.0-beta1，本仓未安装 | Qwen3.5 继续走自有 leap。不把 1.0.2 会话换成未安装的 2.0 |
+| 板端系统软件 | 本轮没有 SSH 读到正在跑的版本 | 手册对照仍是此前记录的 4.0.5 / 5.1.0 两段，页面时间在 2026-06 一带。`rdk-device-skills` 09-24 只对齐工作区路由 | **不刷机**。板上版本待验证 |
+
+官方 README 里可以并进本仓的做法：普通模型先 PTQ，只有用户点名或 PTQ 调完仍失败才评估 QAT；全链路规范高于单步默认；探测本机已有 Docker，不自动拉镜像。这些已经落在量化技能里，并且现场任务门仍然高于官方全链路示例。
+
+[Model Zoo](https://github.com/D-Robotics/rdk_model_zoo) 2026-09-22 修了 YOLO26 的输出顺序、掩码和 OBB 解码，09-24 只对齐技能路由。本仓自有 PTQ 包不因此自动替换。
 
 ## 1. 问题定义
 

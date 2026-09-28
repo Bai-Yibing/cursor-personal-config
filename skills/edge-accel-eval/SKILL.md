@@ -69,7 +69,7 @@ Roofline（单核是否「吃满」）：
    - 迭代次数 1/2/N 是否线性（线性 → 迭代体是稳杠杆）
    - 编译器估计 vs 板端该段 `run()`（差距大 → 提交/DDR 税）
    - 单核全集 vs 只重段多核 vs 全段多核
-   - **官方采集器（可选，分列）**：`hrt_model_exec perf`（thread/core 扫描）、`hb_analyzer`（带宽/利用率）、Perfetto `.pftrace`（调度空隙）、`hrt_ucp_monitor`/`hrut_ddr`（推理期资源）。高频监控不要走 gRPC `hbm_infer`。这些输出是线索，**不能**单独宣称芯片 FPS；仍须独占频率 + 分段 `run()` + 任务质量表。工具路径见 `rdk-official-catalog`。
+   - **官方采集器（可选，分列）**：`hrt_model_exec perf`（thread/core 扫描）、`hb_analyzer`（带宽/利用率）、Perfetto `.pftrace`（调度空隙）、`hrt_ucp_monitor`/`hrut_ddr`（推理期资源）。高频监控不要走 gRPC `hbm_infer`。这些输出是线索，**不能**单独宣称芯片 FPS；仍须独占频率 + 分段 `run()` + 任务质量表。官方 perf 技能会向人要板端地址，本仓只用角色占位，不把地址写进文档。技能包升到 `v1.1.2` 没有换这些采集器，也不构成刷固件的理由。工具路径见 `rdk-official-catalog`。
    - **同一 `HB_HBMRuntime` 上的 Python 多线程**：墙钟不降、ratio 只在一个核，是排队，不是四核图。`perf --thread_num 4` 可以让多个核出现 ratio，它的 FPS 仍是工具帧率。`core_num=1` 不会因为线程数变成多核图。四个实例的墙钟接近串行时，不要写成四倍吞吐；没采 ION 就不能断定是一份权重还是四份。
    - **同一条请求里的多段**：视觉和 Prefill 同时提交时，墙钟可以靠近较重的那段。Decode 与任何一段同时提交时，墙钟相加，Decode 步会被拉长。生成过程中不要插入下一段。四份独立图的工具帧率不到四倍、单步更慢时，仍分列单线程质量和工具吞吐。
 5. **硬件快照**：活测 DRAM Available、进程 RSS、**持包那块 ION 堆**、各核 busy/ratio、温度。禁止把 DRAM 标成「通常不是瓶颈」，禁止 DRAM+ION 相加。长跑、切分、演示 Web 见 `edge-board-system-test`。官方 `rdk-diagnostic` / `rdk-memory-audit` 只读脚本可用。
